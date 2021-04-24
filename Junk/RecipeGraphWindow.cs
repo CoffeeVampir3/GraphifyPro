@@ -3,6 +3,7 @@ using UnityEditor;
 using UnityEditor.GraphToolsFoundation.Overdrive;
 using UnityEditor.GraphToolsFoundation.Overdrive.BasicModel;
 using UnityEngine.UIElements;
+using Vampire.Binding;
 
 namespace Vampire.Graphify.EditorOnly
 {
@@ -30,6 +31,8 @@ namespace Vampire.Graphify.EditorOnly
             
             sidePanelTarget = 
                 m_SidePanel.Q("sidePanelInspector") as Unity.Properties.UI.PropertyElement;
+
+            rootVisualElement.schedule.Execute(TryCreateBlackboard).StartingIn(10);
         }
 
         private bool createdBlackboard = false;
@@ -46,7 +49,11 @@ namespace Vampire.Graphify.EditorOnly
             prevTarget = currentTarget;
             sidePanelTarget.ClearTarget();
             sidePanelTarget.SetTarget(currentTarget);
-            
+            TryCreateBlackboard();
+        }
+
+        public void TryCreateBlackboard()
+        {
             var mew = m_GraphView?.GraphModel?.AssetModel;
             if (createdBlackboard == false && mew is RecipeGraphAssetModel rgam)
             {

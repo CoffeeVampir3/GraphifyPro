@@ -68,13 +68,17 @@ namespace Vampire
             FastRegister<Vector2Int, Vector2IntField>();
             FastRegister<Vector3Int, Vector3IntField>();
             FastRegister<Bounds, BoundsField>();
-            FastRegister<BoundsInt, BoundsIntField>();
             FastRegister<Color, ColorField>();
             FastRegister<AnimationCurve, CurveField>();
             FastRegister<Gradient, GradientField>();
             FastRegister<Rect, RectField>();
-            FastRegister<RectInt, RectIntField>();
             FastRegister<bool, Toggle>();
+            Register<UnityEngine.Object>((t, o) =>
+            {
+                var m = new ObjectField {objectType = t, allowSceneObjects = false};
+                fieldBinder.BindingResolver<UnityEngine.Object, ObjectField>(m, o, bindKey);
+                return m;
+            });
         }
 
         private static CreationDelegate CheckIfRegistered(Type t)
