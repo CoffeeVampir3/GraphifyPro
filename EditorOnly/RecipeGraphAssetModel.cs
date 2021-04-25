@@ -11,7 +11,7 @@ namespace Vampire.Graphify.EditorOnly
     {
         public RuntimeGraphBlueprint runtimeBlueprint;
         protected override Type GraphModelType => typeof(RecipeGraphModel);
-        
+
         [MenuItem("Assets/Create/Recipe")]
         public static void CreateGraph(MenuCommand menuCommand)
         {
