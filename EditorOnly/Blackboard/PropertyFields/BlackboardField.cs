@@ -1,5 +1,5 @@
 ﻿using System;
-using UnityEditor;
+using UnityEditor.GraphToolsFoundation.Overdrive;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -24,7 +24,9 @@ namespace Vampire.Binding
             {
                 newItem = Activator.CreateInstance(t);
             }
-            var pv = new PropertyValue(newItem, t.Name + Guid.NewGuid());
+
+            var propertyName = t.FriendlyName() + " " + UnityEngine.Random.Range(0, 99);
+            var pv = new PropertyValue(newItem, propertyName);
             var fieldKey = t.Name + Guid.NewGuid();
             binder.boundDitionary.Add(fieldKey, pv);
             return new BlackboardField(fieldKey, t,
@@ -34,11 +36,11 @@ namespace Vampire.Binding
         public static BlackboardField LoadField(string fieldKey, Type t, PropertyValue someObject,
             PropertyFieldBinder binder, Action updateViewAction, VisualElement svParent)
         {
-            return new BlackboardField(fieldKey, t,
+            return new(fieldKey, t,
                 someObject, binder, updateViewAction, svParent);
         }
-        
-        protected BlackboardField(string fieldKey, Type t, PropertyValue someObject, 
+
+        private BlackboardField(string fieldKey, Type t, PropertyValue someObject, 
             PropertyFieldBinder binder, Action updateViewAction, VisualElement svParent)
         {
             if (fieldKey == null)
@@ -47,9 +49,7 @@ namespace Vampire.Binding
                 binder.boundDitionary.Add(fieldKey, someObject);
             }
             var field = BlackboardPropertyFieldFactory.Create(t, someObject, binder, fieldKey);
-
-            var labelName = ObjectNames.NicifyVariableName(t.Name);
-            var fv = new Foldout {text = labelName};
+            var fv = new Foldout {text = t.FriendlyName()};
             var textField = new TextField();
             var deleteBtn = new Button {text = "-"};
             textField.SetValueWithoutNotify(someObject.lookupKey);
@@ -58,19 +58,21 @@ namespace Vampire.Binding
             deleteBtn.userData = field;
             textField.RegisterValueChangedCallback(e =>
             {
-                var lookupKey = field.userData as string;
-                if (string.IsNullOrEmpty(e.newValue))
+                if (string.IsNullOrEmpty(e.newValue) || field.userData is not string lookupKey)
                     return;
                 binder.boundDitionary[lookupKey].lookupKey = e.newValue;
+                binder.UpdateSerializedModel();
             });
 
             deleteBtn.clicked += () =>
             {
-                if (!(textField.userData is BindableElement relatedField))
+                if (!(textField.userData is BindableElement relatedField) ||
+                    relatedField.userData is not string relatedFieldKey)
                 {
                     return;
                 }
-                
+
+                binder.boundDitionary.Remove(relatedFieldKey);
                 updateViewAction.Invoke();
             };
 
@@ -79,23 +81,20 @@ namespace Vampire.Binding
             deleteBtn.style.position = new StyleEnum<Position>(Position.Absolute);
             deleteBtn.AddToClassList("--delBtn");
             
-            m.parent.style.flexShrink = 1;
-            m.parent.style.flexGrow = 1;
             m.parent.Add(deleteBtn);
             fv.Add(textField);
             fv.Add(field);
-            fv.style.maxWidth = 265;
-            
-            RegisterCallback<GeometryChangedEvent>(e =>
+
+            RegisterCallback<GeometryChangedEvent>(_ =>
             {
                 fv.style.width = svParent.resolvedStyle.width;
-                deleteBtn.style.left = (svParent.resolvedStyle.width)-30;
+                deleteBtn.style.left = (svParent.resolvedStyle.width)-27;
             });
 
-            svParent.RegisterCallback<GeometryChangedEvent>(e =>
+            svParent.RegisterCallback<GeometryChangedEvent>(_ =>
             {
                 fv.style.width = svParent.resolvedStyle.width;
-                deleteBtn.style.left = (svParent.resolvedStyle.width)-30;
+                deleteBtn.style.left = (svParent.resolvedStyle.width)-27;
             });
 
             field.AddToClassList("dataBlackboard-item");
@@ -106,6 +105,7 @@ namespace Vampire.Binding
             textField.AddToClassList("dataBlackboard-item");
             textField.AddToClassList("dataBlackboard-field");
             textField.AddToClassList("dataBlackboard-textfield");
+            AddToClassList("blackboardField");
 
             Add(fv);
         }

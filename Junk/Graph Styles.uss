@@ -1,0 +1,42 @@
+.blackboardField {
+    background-color: rgba(55, 55, 55, 1);
+    border-width: 1px;
+    border-right-width: 1px;
+    border-left-width: 0;
+    border-radius: 1px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    border-color: rgba(0, 0, 0, .1);
+    font-size: 13px;
+}
+
+.dataBlackboard-foldout > .unity-toggle:enabled .--delBtn {
+    display: none;
+}
+
+.dataBlackboard-foldout {
+    max-width: 260px;
+}
+
+.dataBlackboard-foldout > .unity-toggle:checked .--delBtn {
+    display: flex;
+}
+
+#customBlackboard {
+    background-color: rgba(0, 0, 0, .03);
+    width: 265px;
+    height: 100%;
+    left: 0;
+    position: absolute;
+}
+
+.--delBtn {
+    border-width: 1px;
+    border-color: rgba(25, 25, 25, .6);
+    background-color: rgba(25, 25, 25 .6);
+    -unity-text-align: middle-center;
+}
+
+.--delBtn:hover {
+    border-color: crimson;
+}

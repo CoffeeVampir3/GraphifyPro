@@ -30,7 +30,7 @@ namespace Vampire.Binding
             return typeName + guid;
         }
 
-        private void UpdateSerializedModel()
+        public void UpdateSerializedModel()
         {
             retainer.Serialize(boundDitionary);
         }
