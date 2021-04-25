@@ -4,11 +4,10 @@ using System.Linq;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Vampire.Binding;
 
-namespace Vampire
+namespace Vampire.Binding
 {
-    public static class PropertyFieldFactory
+    public static class BlackboardPropertyFieldFactory
     {
         private delegate BindableElement CreationDelegate(Type t, object o);
         private static readonly Dictionary<Type, CreationDelegate> creationDictionary = new();
@@ -28,7 +27,8 @@ namespace Vampire
             return creationTypes;
         }
 
-        public static BindableElement Create(Type t, object someObject, PropertyFieldBinder binder, string bindTo = null)
+        public static BindableElement Create(Type t, object someObject, PropertyFieldBinder binder, 
+            string bindTo = null)
         {
             bindKey = !string.IsNullOrEmpty(bindTo) ? 
                 bindTo : PropertyFieldBinder.GenerateUniqueFieldIdentifier(someObject);

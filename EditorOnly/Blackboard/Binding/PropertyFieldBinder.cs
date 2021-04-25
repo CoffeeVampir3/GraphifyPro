@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Vampire.Binding
 {
     public class PropertyFieldBinder
     {
-        public Dictionary<string, object> boundDitionary;
+        public Dictionary<string, PropertyValue> boundDitionary;
         private BlackboardPropertyRetainer retainer;
 
         public void TestingOnly()
@@ -47,22 +46,20 @@ namespace Vampire.Binding
                 string userDataLookupKey = field.userData as string;
                 if (string.IsNullOrEmpty(userDataLookupKey))
                     return;
-                boundDitionary[userDataLookupKey] = e.newValue;
+                boundDitionary[userDataLookupKey].initialValue = e.newValue;
                 UpdateSerializedModel();
             });
             
             if (boundDitionary.TryGetValue(key, out var keyedValue))
             {
-                if (keyedValue is ArgType fieldTypedArg)
+                if (keyedValue.initialValue is ArgType fieldTypedArg)
                 {
                     field.SetValueWithoutNotify(fieldTypedArg);
                     return;
                 }
             }
-
-            boundDitionary.Add(key, obj);
+            
             UpdateSerializedModel();
-            if (obj == null) return;
             field.SetValueWithoutNotify((ArgType) obj);
         }
     }

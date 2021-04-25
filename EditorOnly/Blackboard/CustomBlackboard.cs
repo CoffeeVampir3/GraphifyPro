@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Vampire.Binding
@@ -22,20 +21,18 @@ namespace Vampire.Binding
 
             if (pfbinder.boundDitionary.Count == 0)
             {
-                foreach (var n in PropertyFieldFactory.GetDrawableTypes())
+                foreach (var n in BlackboardPropertyFieldFactory.GetDrawableTypes())
                 {
-                    if (n.IsEnum || n == typeof(string))
-                        continue;
-
-                    var thing = Activator.CreateInstance(n);
-                    scrollView.Add(new BlackboardField(null, n, thing, pfbinder, null, scrollView));
+                    scrollView.Add(BlackboardField.CreateNew(n, pfbinder, null, scrollView));
                 }
             }
             else
             {
                 foreach (var m in pfbinder.boundDitionary)
                 {
-                    scrollView.Add(new BlackboardField(m.Key, m.Value.GetType(), m.Value, pfbinder, null, scrollView));
+                    scrollView.Add(BlackboardField.LoadField(m.Key,
+                        m.Value.initialValue.GetType(), m.Value, 
+                        pfbinder, null, scrollView));
                 } 
             }
 
