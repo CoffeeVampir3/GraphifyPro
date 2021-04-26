@@ -23,6 +23,8 @@ namespace Vampire.Runtime
         {
             get
             {
+                if (portId < 0)
+                    return default;
                 var val = ExecutionContext.currentGraph.values[portId];
                 return val switch
                 {
@@ -33,6 +35,8 @@ namespace Vampire.Runtime
             }
             set
             {
+                if (portId < 0)
+                    return;
                 var val = ExecutionContext.currentGraph.values[portId];
                 if (val is AntiAllocationWrapper<T> allocWrap)
                 {
