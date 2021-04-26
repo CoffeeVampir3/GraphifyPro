@@ -1,25 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using UnityEditor;
 using UnityEngine.UIElements;
 
 namespace Vampire.Binding
 {
     public class PropertyFieldBinder
     {
-        public Dictionary<string, PropertyValue> boundDitionary;
-        private BlackboardPropertyRetainer retainer;
+        public readonly Dictionary<string, PropertyValue> boundDitionary;
+        private readonly BlackboardPropertyRetainer retainer;
 
-        public void TestingOnly()
+        public PropertyFieldBinder(BlackboardPropertyRetainer retainer)
         {
-            if (boundDitionary != null)
-                return;
-            var assets = AssetDatabase.FindAssets("t:" + nameof(BlackboardPropertyRetainer));
-            var assetGuid = assets.FirstOrDefault();
-            var assetPath = AssetDatabase.GUIDToAssetPath(assetGuid);
-            retainer = AssetDatabase.LoadAssetAtPath<BlackboardPropertyRetainer>(assetPath);
-            if (retainer == null) return;
+            this.retainer = retainer;
             boundDitionary = retainer.Deserialize();
         }
 
@@ -38,7 +30,6 @@ namespace Vampire.Binding
         public void BindingResolver<ArgType, FieldType>(FieldType field, object obj, string key)
         where FieldType : BaseField<ArgType>
         {
-            TestingOnly();
             field.userData = key;
             
             field.RegisterValueChangedCallback(e =>

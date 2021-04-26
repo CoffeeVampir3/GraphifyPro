@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-namespace Vampire.Graphify.Runtime
+namespace Vampire.Runtime
 {
     [Serializable]
     public abstract class DynamicValuePort : RuntimeDynamicBasePort

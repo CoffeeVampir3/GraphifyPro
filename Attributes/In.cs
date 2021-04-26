@@ -1,6 +1,6 @@
 ﻿using UnityEditor.GraphToolsFoundation.Overdrive;
 
-namespace Vampire.Graphify
+namespace Vampire.Runtime
 {
     public class In : PortDefinition
     {

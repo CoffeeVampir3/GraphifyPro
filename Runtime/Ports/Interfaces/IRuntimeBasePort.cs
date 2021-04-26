@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Vampire.Graphify.Runtime
+namespace Vampire.Runtime
 {
     public interface IRuntimeBasePort : IHasNodeConnections
     {

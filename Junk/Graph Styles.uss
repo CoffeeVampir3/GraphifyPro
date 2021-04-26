@@ -10,12 +10,20 @@
     font-size: 13px;
 }
 
+.blackboard-collapsed {
+    display:none;
+}
+
+.blackboardToolbar {
+    justify-content: space-between;
+}
+
 .dataBlackboard-foldout > .unity-toggle:enabled .--delBtn {
     display: none;
 }
 
 .dataBlackboard-foldout {
-    max-width: 260px;
+    max-width: 265px;
 }
 
 .dataBlackboard-foldout > .unity-toggle:checked .--delBtn {
@@ -24,10 +32,14 @@
 
 #customBlackboard {
     background-color: rgba(0, 0, 0, .03);
-    width: 265px;
+    width: 275px;
     height: 100%;
     left: 0;
     position: absolute;
+}
+
+.unity-scroll-view__horizontal-scroller {
+    display:none;
 }
 
 .--delBtn {

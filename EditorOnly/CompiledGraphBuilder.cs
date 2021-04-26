@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEditor.GraphToolsFoundation.Overdrive;
 using UnityEngine;
-using Vampire.Graphify.Runtime;
+using Vampire.Runtime;
 
 namespace Vampire.Graphify.EditorOnly
 {
@@ -201,7 +201,23 @@ namespace Vampire.Graphify.EditorOnly
         {
             SetupRuntimePortDataTable(blueprint);
         }
-        
+
+        private static void SerializeBlackboard(RecipeGraphAssetModel assetModel, 
+            RuntimeGraphBlueprint blueprint)
+        {
+            if (assetModel.blackboardData != null)
+            {
+                var blackboardData = assetModel.blackboardData.Deserialize();
+                Dictionary<string, object> serializedBb = new();
+
+                foreach (var item in blackboardData.Values)
+                {
+                    serializedBb.Add(item.lookupKey, item.initialValue);
+                }
+                blueprint.serializedBlackboard.Serialize(serializedBb);
+            }
+        }
+
         public static void Build(GraphToolState graphToolState, BuildAllEditorCommand command)
         {
             var model = graphToolState.WindowState.GraphModel;
@@ -279,6 +295,7 @@ namespace Vampire.Graphify.EditorOnly
             blueprint.nodes = runtimeNodes.ToArray();
             blueprint.initializationValues = new object[currentPortId+1];
             SetupSpecializedData(blueprint);
+            SerializeBlackboard(assetModel, blueprint);
             
             EditorUtility.SetDirty(blueprint);
         }

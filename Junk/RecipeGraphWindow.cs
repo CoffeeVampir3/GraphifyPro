@@ -61,8 +61,8 @@ namespace Vampire.Graphify.EditorOnly
         {
             if (CreatedBlackboard) return;
             var mew = m_GraphView?.GraphModel?.AssetModel;
-            if (mew is not RecipeGraphAssetModel) return;
-            CustomBlackboard blackboard = new CustomBlackboard();
+            if (mew is not RecipeGraphAssetModel graphifyAssetModel) return;
+            CustomBlackboard blackboard = new CustomBlackboard(graphifyAssetModel.blackboardData);
             rootVisualElement.Q("graphContainer").Add(blackboard);
             blackboard.BringToFront();
         }

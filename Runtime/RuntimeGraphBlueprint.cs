@@ -3,7 +3,7 @@ using Sirenix.OdinInspector;
 using Sirenix.Serialization;
 using UnityEngine;
 
-namespace Vampire.Graphify.Runtime
+namespace Vampire.Runtime
 {
     [CreateAssetMenu]
     public class RuntimeGraphBlueprint : SerializedScriptableObject
@@ -12,6 +12,8 @@ namespace Vampire.Graphify.Runtime
         public RuntimeNode[] nodes;
         [NonSerialized, OdinSerialize] 
         public object[] initializationValues;
+        [NonSerialized, OdinSerialize] 
+        public SerializedBlackboard serializedBlackboard = new();
         //
         public RuntimeGraph CreateRuntimeGraph()
         {

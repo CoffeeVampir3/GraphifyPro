@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Vampire.Graphify.Runtime
+namespace Vampire.Runtime
 {
     [Serializable]
     public abstract class RuntimeDynamicBasePort : RuntimeBasePort, IRuntimeDynamicBasePort

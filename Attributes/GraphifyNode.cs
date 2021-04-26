@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Vampire.Graphify
+namespace Vampire.Runtime
 {
     [Serializable]
     public class GraphifyNode : Attribute

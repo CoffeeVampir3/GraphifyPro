@@ -1,8 +1,9 @@
 ﻿using System;
 using UnityEditor.GraphToolsFoundation.Overdrive;
 using UnityEngine;
+using Vampire.Graphify;
 
-namespace Vampire.Graphify.Runtime
+namespace Vampire.Runtime
 {
     [Serializable]
     public class RuntimeNode

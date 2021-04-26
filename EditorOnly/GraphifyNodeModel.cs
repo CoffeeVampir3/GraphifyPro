@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEditor.GraphToolsFoundation.Overdrive;
 using UnityEditor.GraphToolsFoundation.Overdrive.BasicModel;
 using UnityEngine;
-using Vampire.Graphify.Runtime;
+using Vampire.Runtime;
 
 namespace Vampire.Graphify.EditorOnly
 {

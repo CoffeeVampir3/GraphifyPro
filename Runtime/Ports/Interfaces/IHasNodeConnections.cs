@@ -1,4 +1,4 @@
-﻿namespace Vampire.Graphify.Runtime
+﻿namespace Vampire.Runtime
 {
     public interface IHasNodeConnections
     {

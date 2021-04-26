@@ -6,7 +6,7 @@ using UnityEditor;
 using UnityEditor.GraphToolsFoundation.Overdrive;
 using UnityEditor.Searcher;
 using UnityEngine;
-using Vampire.Graphify.Runtime;
+using Vampire.Runtime;
 
 namespace Vampire.Graphify.EditorOnly.Search
 {

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
-using Vampire.Graphify.Runtime;
+using Vampire.Runtime;
 
 namespace Vampire.Graphify.EditorOnly
 {

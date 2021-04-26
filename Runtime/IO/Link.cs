@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Vampire.Graphify.Runtime
+namespace Vampire.Runtime
 {
     [Serializable]
     public struct Link

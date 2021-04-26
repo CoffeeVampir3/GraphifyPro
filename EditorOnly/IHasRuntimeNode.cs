@@ -1,5 +1,5 @@
 ﻿using UnityEditor.GraphToolsFoundation.Overdrive;
-using Vampire.Graphify.Runtime;
+using Vampire.Runtime;
 
 namespace Vampire.Graphify.EditorOnly
 {

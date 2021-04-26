@@ -14,7 +14,7 @@ namespace Vampire.Binding
         private static readonly List<Type> creationTypes = new();
         private static bool initialized = false;
         private static string bindKey;
-        private static PropertyFieldBinder fieldBinder = new();
+        private static PropertyFieldBinder fieldBinder;
 
         public static IReadOnlyCollection<Type> GetDrawableTypes()
         {

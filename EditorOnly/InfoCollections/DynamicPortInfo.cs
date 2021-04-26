@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEditor.GraphToolsFoundation.Overdrive.BasicModel;
 using UnityEngine;
+using Vampire.Runtime;
 
 namespace Vampire.Graphify.EditorOnly
 {

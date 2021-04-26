@@ -1,8 +1,7 @@
 ﻿using System;
 using UnityEngine;
-using Vampire.Graphify.Runtime;
 
-namespace Vampire.Graphify
+namespace Vampire.Runtime
 {
     public class RuntimeTester : MonoBehaviour
     {
@@ -30,6 +29,7 @@ namespace Vampire.Graphify
             currentFrame = 0;
             if (currentNode == null)
                 return;
+            //Blackboard.
             currentNode = currentNode.Evaluate(rtGraph);
         }
     }

@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Vampire.Graphify.Runtime
+namespace Vampire.Runtime
 {
     [Serializable]
     public abstract class AntiAllocationWrapper

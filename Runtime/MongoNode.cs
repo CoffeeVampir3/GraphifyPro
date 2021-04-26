@@ -1,8 +1,6 @@
 ﻿using System;
-using Vampire.Graphify;
-using Vampire.Graphify.Runtime;
 
-namespace GraphifyPro.Runtime
+namespace Vampire.Runtime
 {
     [Serializable]
     [GraphifyNode("wow!")]

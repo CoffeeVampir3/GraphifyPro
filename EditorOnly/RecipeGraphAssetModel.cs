@@ -3,13 +3,15 @@ using UnityEditor.GraphToolsFoundation.Overdrive;
 using UnityEditor.GraphToolsFoundation.Overdrive.BasicModel;
 using UnityEditor;
 using UnityEditor.Callbacks;
-using Vampire.Graphify.Runtime;
+using Vampire.Binding;
+using Vampire.Runtime;
 
 namespace Vampire.Graphify.EditorOnly
 {
     public class RecipeGraphAssetModel : GraphAssetModel
     {
         public RuntimeGraphBlueprint runtimeBlueprint;
+        public BlackboardPropertyRetainer blackboardData;
         protected override Type GraphModelType => typeof(RecipeGraphModel);
 
         [MenuItem("Assets/Create/Recipe")]

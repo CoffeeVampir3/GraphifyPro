@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Vampire.Graphify
+namespace Vampire.Runtime
 {
     [AttributeUsage(AttributeTargets.Field)]
     public class DynamicPortDefinition : Attribute
