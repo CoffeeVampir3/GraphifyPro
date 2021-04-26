@@ -2,7 +2,7 @@
 
 namespace Vampire.Runtime
 {
-    public interface IRuntimeBasePort : IHasNodeConnections
+    public interface IRuntimeBasePort
     {
         public IReadOnlyList<Link> Links { get; }
 

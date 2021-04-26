@@ -23,6 +23,7 @@ namespace Vampire.Runtime
 
             foreach (var link in mongoPort.Links)
             {
+                return link.Node;
             }
 
             return null;

@@ -1,13 +1,20 @@
 ﻿using System;
+using UnityEngine;
 
 namespace Vampire.Runtime
 {
     [Serializable]
     public struct Link
     {
-        public short toNodeIndex;
-        public short toPortIndex;
-        public short fromPortIndex;
-        public short dynamicPortId;
+        [SerializeField]
+        internal short toNodeIndex;
+        [SerializeField]
+        internal short toPortIndex;
+        [SerializeField]
+        internal short fromPortIndex;
+        [SerializeField]
+        internal short dynamicPortId;
+
+        public RuntimeNode Node => ExecutionContext.currentGraph.nodes[toPortIndex];
     }
 }

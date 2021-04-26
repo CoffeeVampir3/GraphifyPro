@@ -5,8 +5,8 @@ namespace Vampire.Runtime
     public class RuntimeGraph
     {
         public readonly RuntimeNode[] nodes;
-        public object[] values;
-        public Dictionary<string, object> localBlackboard = null;
+        public readonly object[] values;
+        public readonly Dictionary<string, object> localBlackboard = null;
 
         public RuntimeGraph(RuntimeGraphBlueprint blueprint)
         {

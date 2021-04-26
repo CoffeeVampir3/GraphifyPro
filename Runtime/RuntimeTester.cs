@@ -29,6 +29,7 @@ namespace Vampire.Runtime
             currentFrame = 0;
             if (currentNode == null)
                 return;
+            ExecutionContext.currentGraph = rtGraph;
             currentNode = currentNode.Evaluate(rtGraph);
         }
     }

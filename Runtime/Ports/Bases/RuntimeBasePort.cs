@@ -15,8 +15,5 @@ namespace Vampire.Runtime
         void IRuntimeBasePort.ClearLinks() => links.Clear();
         void IRuntimeBasePort.OrderLinks() => 
             links = links.OrderBy(link => link.dynamicPortId).ToList();
-        
-        public RuntimeNode GetConnectedNode(Link link, RuntimeGraph graph) 
-            => graph.nodes[link.toNodeIndex];
     }
 }
