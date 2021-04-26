@@ -17,11 +17,19 @@ namespace Vampire.Graphify.EditorOnly
         public OrderedPorts ports = new();
 
         public DynamicPortInfo(string fieldName, 
-            DynamicPortDefinition dynDef)
+            DynamicRange dynDef = null)
         {
             this.fieldName = fieldName;
-            minSize = dynDef.min;
-            maxSize = dynDef.max;
+            if (dynDef != null)
+            {
+                minSize = dynDef.min;
+                maxSize = dynDef.max;
+            }
+            else
+            {
+                minSize = 0;
+                maxSize = byte.MaxValue;
+            }
             if(minSize > maxSize)
                 Debug.LogError("Resizable port defined with great min size than max size!");
             if (minSize > 0 || minSize > currentSize)

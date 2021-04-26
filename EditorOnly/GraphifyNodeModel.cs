@@ -19,7 +19,7 @@ namespace Vampire.Graphify.EditorOnly
         [SerializeField, HideInInspector]
         protected InfoCollection<PortInfo, PortDefinition> portInfo = new();
         [SerializeField, HideInInspector] 
-        protected InfoCollection<DynamicPortInfo, DynamicPortDefinition> dynamicPorts = new();
+        protected InfoCollection<DynamicPortInfo, DynamicRange> dynamicPorts = new();
 
         public RuntimeNode RuntimeNode => runtimeNode;
         public short RuntimeNodeId => runtimeNode?.nodeId ?? -1;
@@ -107,9 +107,12 @@ namespace Vampire.Graphify.EditorOnly
         
         private DynamicPortInfo ResolveDynamicPort(FieldInfo field)
         {
-            var dynDef = field.GetCustomAttribute<DynamicPortDefinition>();
-            if (dynDef == null) return null;
-            
+            if (!typeof(IRuntimeDynamicBasePort).IsAssignableFrom(field.FieldType))
+            {
+                return null;
+            }
+            var dynDef = field.GetCustomAttribute<DynamicRange>();
+
             definedDynamicNames.Add(field.Name);
             if (!dynamicPorts.TryGetInfo(field.Name, out var dynPort))
             {

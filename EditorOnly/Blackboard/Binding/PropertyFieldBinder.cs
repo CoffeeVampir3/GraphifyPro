@@ -6,13 +6,13 @@ namespace Vampire.Binding
 {
     public class PropertyFieldBinder
     {
-        public readonly Dictionary<string, PropertyValue> boundDitionary;
+        public readonly Dictionary<string, PropertyValue> boundDictionary;
         private readonly BlackboardPropertyRetainer retainer;
 
         public PropertyFieldBinder(BlackboardPropertyRetainer retainer)
         {
             this.retainer = retainer;
-            boundDitionary = retainer.Deserialize();
+            boundDictionary = retainer.Deserialize();
         }
 
         public static string GenerateUniqueFieldIdentifier(object obj)
@@ -24,7 +24,7 @@ namespace Vampire.Binding
 
         public void UpdateSerializedModel()
         {
-            retainer.Serialize(boundDitionary);
+            retainer.Serialize(boundDictionary);
         }
 
         public void BindingResolver<ArgType, FieldType>(FieldType field, object obj, string key)
@@ -37,11 +37,11 @@ namespace Vampire.Binding
                 string userDataLookupKey = field.userData as string;
                 if (string.IsNullOrEmpty(userDataLookupKey))
                     return;
-                boundDitionary[userDataLookupKey].initialValue = e.newValue;
+                boundDictionary[userDataLookupKey].initialValue = e.newValue;
                 UpdateSerializedModel();
             });
             
-            if (boundDitionary.TryGetValue(key, out var keyedValue))
+            if (boundDictionary.TryGetValue(key, out var keyedValue))
             {
                 if (keyedValue.initialValue is ArgType fieldTypedArg)
                 {

@@ -91,7 +91,7 @@ namespace Vampire.Binding
         {
             binder.UpdateSerializedModel();
             scrollView.Clear();
-            foreach (var m in binder.boundDitionary)
+            foreach (var m in binder.boundDictionary)
             {
                 scrollView.Add(BlackboardField.LoadField(m.Key,
                     m.Value.initialValue.GetType(), m.Value,

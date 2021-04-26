@@ -28,7 +28,7 @@ namespace Vampire.Binding
             var propertyName = t.FriendlyName() + " " + UnityEngine.Random.Range(0, 99);
             var pv = new PropertyValue(newItem, propertyName);
             var fieldKey = t.Name + Guid.NewGuid();
-            binder.boundDitionary.Add(fieldKey, pv);
+            binder.boundDictionary.Add(fieldKey, pv);
             return new BlackboardField(fieldKey, t,
                 pv, binder, updateViewAction, svParent);
         }
@@ -46,7 +46,7 @@ namespace Vampire.Binding
             if (fieldKey == null)
             {
                 fieldKey = t.Name + Guid.NewGuid();
-                binder.boundDitionary.Add(fieldKey, someObject);
+                binder.boundDictionary.Add(fieldKey, someObject);
             }
             var field = BlackboardPropertyFieldFactory.Create(t, someObject, binder, fieldKey);
             var fv = new Foldout {text = t.FriendlyName()};
@@ -60,7 +60,7 @@ namespace Vampire.Binding
             {
                 if (string.IsNullOrEmpty(e.newValue) || field.userData is not string lookupKey)
                     return;
-                binder.boundDitionary[lookupKey].lookupKey = e.newValue;
+                binder.boundDictionary[lookupKey].lookupKey = e.newValue;
                 binder.UpdateSerializedModel();
             });
 
@@ -72,7 +72,7 @@ namespace Vampire.Binding
                     return;
                 }
 
-                binder.boundDitionary.Remove(relatedFieldKey);
+                binder.boundDictionary.Remove(relatedFieldKey);
                 updateViewAction.Invoke();
             };
 
