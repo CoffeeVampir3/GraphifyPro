@@ -15,6 +15,6 @@ namespace Vampire.Runtime
         [SerializeField]
         internal short dynamicPortId;
 
-        public RuntimeNode Node => ExecutionContext.currentGraph.nodes[toPortIndex];
+        public RuntimeNode Node => ExecutionContext.currentGraph.nodes[toNodeIndex];
     }
 }

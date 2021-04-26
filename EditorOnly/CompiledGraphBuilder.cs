@@ -56,7 +56,7 @@ namespace Vampire.Graphify.EditorOnly
             return true;
         }
 
-        private static void AssignSpecializedPortIdentifiers(short portId, IRuntimeBasePort bp)
+        private static void AssignPortIdentifiers(short portId, IRuntimeBasePort bp)
         {
             switch (bp)
             {
@@ -66,12 +66,14 @@ namespace Vampire.Graphify.EditorOnly
                     idToValuePort.Add(portId, valuePort);
                     break;
             }
+
+            bp.PortId = portId;
         }
         
-        private static void AssignSpecializedPortIdentifiers(IPortModel portModel, 
+        private static void AssignPortIdentifiers(IPortModel portModel, 
             IRuntimeBasePort bp)
         {
-            AssignSpecializedPortIdentifiers(portModelToId[portModel], bp);
+            AssignPortIdentifiers(portModelToId[portModel], bp);
         }
 
         private static void VisitEdgeFromOrigin(IEdgeModel edge,
@@ -89,7 +91,7 @@ namespace Vampire.Graphify.EditorOnly
             foreach (var edge in edges)
             {
                 bool edgeOriginIsFrom = edge.FromPort != port;
-                AssignSpecializedPortIdentifiers(port, bp);
+                AssignPortIdentifiers(port, bp);
                 VisitEdgeFromOrigin(edge, bp, edgeOriginIsFrom, dynamicPortIndex);
             }
         }
@@ -127,7 +129,7 @@ namespace Vampire.Graphify.EditorOnly
                 if (!fieldNameToBasePort.TryGetValue(dynamicPort.fieldName, out var bp)) continue;
                 if (dynamicPortToId.TryGetValue(dynamicPort, out var id))
                 {
-                    AssignSpecializedPortIdentifiers(id, bp);
+                    AssignPortIdentifiers(id, bp);
                 }
             }
 
@@ -250,9 +252,9 @@ namespace Vampire.Graphify.EditorOnly
                             //We only create a new Id if there's actually a used port on this
                             //dynamic.
                             short dynamicId = -1;
-                            foreach (var port in dynamicPort.ports)
+                            foreach (var port in dynamicPort.ports.Values)
                             {
-                                if (!port.Value.GetConnectedEdges().Any())
+                                if (!port.GetConnectedEdges().Any())
                                     continue;
                                 if (dynamicId == -1)
                                 {
@@ -260,7 +262,7 @@ namespace Vampire.Graphify.EditorOnly
                                     dynamicPortToId.Add(dynamicPort, dynamicId);
                                 }
 
-                                portModelToId.Add(port.Value, dynamicId);
+                                portModelToId.Add(port, dynamicId);
                             }
                         }
                         break;

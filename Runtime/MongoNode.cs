@@ -16,17 +16,17 @@ namespace Vampire.Runtime
 
         public override RuntimeNode Evaluate(RuntimeGraph graph)
         {
-            foreach (var item in graph.localBlackboard)
-            {
-                Debug.Log(item.Key + " " + item.Value);
-            }
 
+            RuntimeNode someLink = null;
             foreach (var link in mongoPort.Links)
             {
-                return link.Node;
+                someLink = link.Node;
+                if (!mongoPort.TryGetValue(link, out var val)) continue;
+                Debug.Log(val);
             }
+            mongoIn.LocalValue += 1;
 
-            return null;
+            return someLink;
         }
     }
 }

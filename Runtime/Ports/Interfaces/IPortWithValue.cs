@@ -5,11 +5,13 @@
         internal object GetInitValue();
         object GetValueDirect(Link link, RuntimeGraph graph);
 
-        public bool TryGetValueAs<SomeType>(Link link, RuntimeGraph graph, out SomeType val);
+        public bool TryGetValueAs<SomeType>(Link link, out SomeType val);
     }
 
     public interface IPortWithValue<T> : IPortWithValue
     {
-        public bool TryGetValue(Link link, RuntimeGraph graph, out T val);
+        public T LocalValue { get; set; }
+
+        public bool TryGetValue(Link link, out T val);
     }
 }
