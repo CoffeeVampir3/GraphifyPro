@@ -20,6 +20,11 @@ namespace Vampire.Binding
             Add(CreateTopMenu());
             RebuildFromBinder();
 
+            pickingMode = PickingMode.Ignore;
+            scrollView.pickingMode = PickingMode.Ignore;
+            scrollView.contentContainer.pickingMode = PickingMode.Ignore;
+            scrollView.Q("unity-content-and-vertical-scroll-container").pickingMode = PickingMode.Ignore;
+
             Add(scrollView);
             RegisterCallback<GeometryChangedEvent>(OnGeoChange);
         }

@@ -1,7 +1,7 @@
 ﻿using System;
-using UnityEditor.GraphToolsFoundation.Overdrive;
 using UnityEngine;
 using Vampire.Runtime;
+using PortCapacity = Vampire.Runtime.PortCapacity;
 
 namespace Vampire.Graphify.EditorOnly
 {

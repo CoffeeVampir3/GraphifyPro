@@ -1,6 +1,6 @@
 ﻿namespace Vampire.Runtime
 {
-    public static class ExecutionContext
+    internal static class CurrentEvaluation
     {
         public static RuntimeGraph currentGraph;
     }

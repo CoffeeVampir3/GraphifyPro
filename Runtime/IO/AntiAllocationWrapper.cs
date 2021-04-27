@@ -7,6 +7,8 @@ namespace Vampire.Runtime
     public abstract class AntiAllocationWrapper
     {
         internal abstract void SetValue(object o);
+
+        internal abstract AntiAllocationWrapper CloneWrapper();
     }
     [Serializable]
     public class AntiAllocationWrapper<T> : AntiAllocationWrapper
@@ -20,6 +22,13 @@ namespace Vampire.Runtime
             {
                 item = valItem;
             }
+        }
+
+        internal override AntiAllocationWrapper CloneWrapper()
+        {
+            var clonedWrapper = new AntiAllocationWrapper<T>();
+            clonedWrapper.SetValue(item);
+            return clonedWrapper;
         }
     }
 }

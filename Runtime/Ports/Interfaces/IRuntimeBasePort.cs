@@ -7,8 +7,9 @@ namespace Vampire.Runtime
         public IReadOnlyList<Link> Links { get; }
         public short PortId { get; set; }
 
+        public void Editor_Reset();
+
         internal void AddLink(Link link);
-        internal void ClearLinks();
         internal void OrderLinks();
     }
 }

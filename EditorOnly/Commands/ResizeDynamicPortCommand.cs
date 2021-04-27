@@ -28,7 +28,8 @@ namespace Vampire.Graphify.EditorOnly
             using var updater = state.GraphViewState.UpdateScope;
             foreach (var nodeModel in command.Models)
             {
-                nodeModel.ResizeDynamicPort(command._targetPortInfo, command.resizeBy);
+                if(nodeModel is IHasDynamicPorts modelWithDynamics)
+                    modelWithDynamics.ResizeDynamicPort(command._targetPortInfo, command.resizeBy);
             }
             
             updater.MarkChanged(command.Models);

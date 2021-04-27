@@ -1,0 +1,21 @@
+{
+    "name": "GraphifyPro.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:5c8e454eb34af6c48a28243b0755cb5e",
+        "GUID:18b4fb767b8f81047b7c24fdec94709e",
+        "GUID:4988cf9794f41d64c884876ab6574b89",
+        "GUID:416d137b1126dbf408443d029c73482a"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

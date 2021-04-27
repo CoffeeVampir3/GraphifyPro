@@ -19,7 +19,13 @@ namespace Vampire.Graphify.EditorOnly
 
             return null;
         }
-        
+
+        public override bool GetPortCapacity(IPortModel portModel, out PortCapacity capacity)
+        {
+            capacity = PortCapacity.Single;
+            return true;
+        }
+
         public override IToolbarProvider GetToolbarProvider()
         {
             return m_ToolbarProvider ??= new CustomToolbarProvider();

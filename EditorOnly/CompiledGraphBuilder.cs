@@ -14,22 +14,71 @@ namespace Vampire.Graphify.EditorOnly
         private static readonly Dictionary<short, IPortWithValue> idToValuePort = new();
         private static readonly Dictionary<DynamicPortInfo, short> dynamicPortToId = new();
         private static readonly List<IRuntimeBasePort> allRuntimePorts = new();
+        private static Stencil stencil;
         private static void Swap<T>(ref T rhs, ref T lhs)
         {
             T temp = lhs;
             lhs = rhs;
             rhs = temp;
         }
+
+        //Recurs through portaled connections and creates real connections
+        private static bool ResolveFromEndPointTo(IPortModel fromPort, 
+            out IHasRuntimeNode endPointNode, out IPortModel endPointPort)
+        {
+            endPointNode = null;
+            endPointPort = null;
+            var fromNode = fromPort.NodeModel;
+            if (fromNode is IHasRuntimeNode rtNode)
+            {
+                endPointNode = rtNode;
+                endPointPort = fromPort;
+                return true;
+            }
+            
+            if (fromNode is not IEdgePortalModel fromPortalModel) return false;
+            var linkedPortals = stencil.GetLinkedPortals(fromPortalModel);
+            var toPortalModel = linkedPortals.FirstOrDefault(e => fromPortalModel != e);
+            var oppositeEdge = toPortalModel?.GetConnectedEdges().FirstOrDefault();
+            return ResolveFromEndPointTo(oppositeEdge?.FromPort, out endPointNode, out endPointPort);
+
+        }
+        
+        //Recurs through portaled connections and creates real connections
+        private static bool ResolveToEndPointFrom(IPortModel toPort,
+            out IHasRuntimeNode endPointNode, out IPortModel endPointPort)
+        {
+            endPointNode = null;
+            endPointPort = null;
+            var toNode = toPort.NodeModel;
+            if (toNode is IHasRuntimeNode rtNode)
+            {
+                endPointNode = rtNode;
+                endPointPort = toPort;
+                return true;
+            }
+            if (toNode is not IEdgePortalModel toPortalModel) return false;
+            var linkedPortals = stencil.GetLinkedPortals(toPortalModel);
+            var fromPortalModel = linkedPortals.FirstOrDefault(e => toPortalModel != e);
+            var oppositeEdge = fromPortalModel?.GetConnectedEdges().FirstOrDefault();
+            return ResolveToEndPointFrom(oppositeEdge?.ToPort, out endPointNode, out endPointPort);
+        }
+        
         private static bool TryBuildLink(IEdgeModel edge, short dynamicPortIndex, 
             bool swapToAndFrom, out Link link)
         {
-            var fromPort = edge.FromPort;
-            var toPort = edge.ToPort;
-            if (fromPort?.NodeModel is not IHasRuntimeNode runtimeFrom ||
-                toPort?.NodeModel is not IHasRuntimeNode runtimeTo) 
+            if (!ResolveFromEndPointTo(edge.FromPort, out var runtimeFrom, out var fromPort))
             {
                 Debug.LogError("Graph Builder was unable to build a semantic link between: " + fromPort?.NodeModel + 
-                               " on port: " + fromPort + " " + toPort?.NodeModel + " on port: " + toPort);
+                               " on port: " + fromPort + " as a distant end could not be established!");
+                link = default;
+                return false;
+            }
+
+            if (!ResolveToEndPointFrom(edge.ToPort, out var runtimeTo, out var toPort))
+            {
+                Debug.LogError("Graph Builder was unable to build a semantic link between: " + toPort?.NodeModel + 
+                               " on port: " + toPort + " to " + fromPort?.NodeModel + " on port: " + fromPort);
                 link = default;
                 return false;
             }
@@ -58,15 +107,14 @@ namespace Vampire.Graphify.EditorOnly
 
         private static void AssignPortIdentifiers(short portId, IRuntimeBasePort bp)
         {
+            if (idToValuePort.ContainsKey(portId))
+                return;
             switch (bp)
             {
                 case IPortWithValue valuePort:
-                    if (idToValuePort.ContainsKey(portId))
-                        return;
                     idToValuePort.Add(portId, valuePort);
                     break;
             }
-
             bp.PortId = portId;
         }
         
@@ -114,7 +162,7 @@ namespace Vampire.Graphify.EditorOnly
                 {
                     continue;
                 }
-                bp.ClearLinks();
+                bp.Editor_Reset();
                 fieldNameToBasePort.Add(field.Name, bp);
                 allRuntimePorts.Add(bp);
             }
@@ -233,6 +281,7 @@ namespace Vampire.Graphify.EditorOnly
             idToValuePort.Clear();
             dynamicPortToId.Clear();
             allRuntimePorts.Clear();
+            stencil = model.Stencil;
 
             //First loop over node models, assign each one a unique id so we
             //can flat map them to an array. We also flatten the dynamic port hierarchy

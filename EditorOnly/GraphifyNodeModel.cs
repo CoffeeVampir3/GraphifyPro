@@ -5,7 +5,9 @@ using UnityEditor;
 using UnityEditor.GraphToolsFoundation.Overdrive;
 using UnityEditor.GraphToolsFoundation.Overdrive.BasicModel;
 using UnityEngine;
+using Vampire.Graphify.EditorOnly.StaticBridge;
 using Vampire.Runtime;
+using PortCapacity = UnityEditor.GraphToolsFoundation.Overdrive.PortCapacity;
 
 namespace Vampire.Graphify.EditorOnly
 {
@@ -149,10 +151,10 @@ namespace Vampire.Graphify.EditorOnly
         {
             var portModel = portDef switch
             {
-                In => AddInputPort(portName, portDef.portType,
-                    type, null, portDef.orientation, portDef.options),
-                Out => AddOutputPort(portName, portDef.portType,
-                    type, null, portDef.orientation, portDef.options),
+                In => AddInputPort(portName, PortType.Data,
+                    type, null, portDef.orientation.ToUnity(), PortModelOptions.NoEmbeddedConstant),
+                Out => AddOutputPort(portName, PortType.Data,
+                    type, null, portDef.orientation.ToUnity(), PortModelOptions.NoEmbeddedConstant),
                 _ => throw new ArgumentOutOfRangeException()
             };
             
@@ -174,7 +176,7 @@ namespace Vampire.Graphify.EditorOnly
         {
             if (!portInfo.TryGetInfo(portModel, out var info))
                 return base.GetPortCapacity(portModel);
-            return info.portCapacity;
+            return info.portCapacity.ToUnity();
         }
         
         #endregion
