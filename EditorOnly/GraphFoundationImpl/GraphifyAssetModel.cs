@@ -3,7 +3,6 @@ using UnityEditor.GraphToolsFoundation.Overdrive;
 using UnityEditor.GraphToolsFoundation.Overdrive.BasicModel;
 using UnityEditor;
 using UnityEditor.Callbacks;
-using Vampire.Binding;
 using Vampire.Runtime;
 
 namespace Vampire.Graphify.EditorOnly
@@ -11,7 +10,6 @@ namespace Vampire.Graphify.EditorOnly
     public class GraphifyAssetModel : GraphAssetModel
     {
         public RuntimeGraphBlueprint runtimeBlueprint;
-        public BlackboardPropertyRetainer blackboardData;
         protected override Type GraphModelType => typeof(GraphifyModel);
         
         public static void CreateGraph(MenuCommand menuCommand)

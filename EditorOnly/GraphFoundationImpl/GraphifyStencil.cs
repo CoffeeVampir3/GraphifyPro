@@ -1,4 +1,7 @@
-﻿using UnityEditor.GraphToolsFoundation.Overdrive;
+﻿using System;
+using UnityEditor.GraphToolsFoundation.Overdrive;
+using UnityEditor.GraphToolsFoundation.Overdrive.BasicModel;
+using UnityEngine;
 using Vampire.Graphify.EditorOnly.Search;
 using PortCapacity = UnityEditor.GraphToolsFoundation.Overdrive.PortCapacity;
 
@@ -13,6 +16,34 @@ namespace Vampire.Graphify.EditorOnly
         public override IGraphProcessingErrorModel CreateProcessingErrorModel(GraphProcessingError error)
         {
             return null;
+        }
+        
+        public override Type GetConstantNodeValueType(TypeHandle typeHandle)
+        {
+            return typeHandle.Resolve();
+        }
+
+        public override IConstant CreateConstantValue(TypeHandle constantTypeHandle)
+        {
+            Debug.Log("Constant: " + constantTypeHandle.Name);
+            IConstant instance;
+            var nodeType = TypeToConstantMapper.GetConstantNodeType(constantTypeHandle);
+            if (nodeType == null)
+            {
+                instance = new AnyConstant {ObjectValue = new object()};
+            }
+            else
+            {
+                if (Activator.CreateInstance(nodeType) is not IConstant constantVal)
+                {
+                    return null;
+                }
+
+                instance = constantVal;
+                instance.ObjectValue = instance.DefaultValue;
+            }
+            
+            return instance;
         }
 
         /// <summary>
@@ -31,7 +62,7 @@ namespace Vampire.Graphify.EditorOnly
 
         public override IBlackboardGraphModel CreateBlackboardGraphModel(IGraphAssetModel graphAssetModel)
         {
-            return null;
+            return new GraphifyBlackboardModel(graphAssetModel);
         }
 
         public override ISearcherDatabaseProvider GetSearcherDatabaseProvider()

@@ -4,7 +4,6 @@ using UnityEditor.GraphToolsFoundation.Overdrive;
 using UnityEditor.GraphToolsFoundation.Overdrive.BasicModel;
 using UnityEngine;
 using UnityEngine.UIElements;
-using Vampire.Binding;
 
 namespace Vampire.Graphify.EditorOnly
 {
@@ -28,7 +27,6 @@ namespace Vampire.Graphify.EditorOnly
         //TODO::(Z) Matching variables used for the hack as described in update.
         private Unity.Properties.UI.PropertyElement sidePanelTarget;
         private INodeModel prevTarget = null;
-        private bool CreatedBlackboard => (rootVisualElement.Q<CustomBlackboard>() != null);
         protected override void OnEnable()
         {
             base.OnEnable();
@@ -37,8 +35,6 @@ namespace Vampire.Graphify.EditorOnly
             
             sidePanelTarget = 
                 m_SidePanel.Q("sidePanelInspector") as Unity.Properties.UI.PropertyElement;
-            
-            rootVisualElement.schedule.Execute(TryCreateBlackboard).StartingIn(10);
         }
         
         protected override void Update()
@@ -54,19 +50,6 @@ namespace Vampire.Graphify.EditorOnly
             prevTarget = currentTarget;
             sidePanelTarget.ClearTarget();
             sidePanelTarget.SetTarget(currentTarget);
-            
-            //More hacks to create blackboard.
-            TryCreateBlackboard();
-        }
-
-        private void TryCreateBlackboard()
-        {
-            if (CreatedBlackboard) return;
-            var mew = m_GraphView?.GraphModel?.AssetModel;
-            if (mew is not GraphifyAssetModel graphifyAssetModel) return;
-            CustomBlackboard blackboard = new CustomBlackboard(graphifyAssetModel.blackboardData);
-            rootVisualElement.Q("graphContainer").Add(blackboard);
-            blackboard.BringToFront();
         }
 
         protected override GraphView CreateGraphView()
