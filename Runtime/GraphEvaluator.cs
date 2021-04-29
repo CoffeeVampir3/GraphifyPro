@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+﻿using System;
 
 namespace Vampire.Runtime
 {
-    public class RuntimeTester : MonoBehaviour
+    [Serializable]
+    public class GraphEvaluator
     {
         public RuntimeGraphBlueprint blueprint;
         
@@ -12,22 +13,17 @@ namespace Vampire.Runtime
         private RuntimeNode nextNode = null;
         private Context rootContext;
 
-        public void Awake()
+        public void Initialize()
         {
             rtGraph = blueprint.CreateRuntimeGraph();
             currentNode = rtGraph.nodes[rootNodeIndex];
             rootContext = new Context(rtGraph);
         }
-        
-        private int currentFrame = 0;
-        public void Update()
-        {
-            if (++currentFrame != 700)
-                return;
 
-            currentFrame = 0;
+        public bool Step()
+        {
             if (currentNode == null)
-                return;
+                return false;
             CurrentEvaluation.currentGraph = rtGraph;
             nextNode = currentNode.Evaluate(rootContext);
             if (nextNode == null && rootContext.Count() > 0)
@@ -36,6 +32,7 @@ namespace Vampire.Runtime
             }
 
             currentNode = nextNode;
+            return true;
         }
     }
 }

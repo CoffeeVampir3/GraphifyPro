@@ -1,7 +1,6 @@
 ﻿using System;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
-using UnityEngine;
 
 namespace Vampire.Runtime
 {
