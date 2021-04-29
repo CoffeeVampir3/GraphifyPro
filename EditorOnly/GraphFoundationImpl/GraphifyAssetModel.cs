@@ -8,42 +8,41 @@ using Vampire.Runtime;
 
 namespace Vampire.Graphify.EditorOnly
 {
-    public class RecipeGraphAssetModel : GraphAssetModel
+    public class GraphifyAssetModel : GraphAssetModel
     {
         public RuntimeGraphBlueprint runtimeBlueprint;
         public BlackboardPropertyRetainer blackboardData;
-        protected override Type GraphModelType => typeof(RecipeGraphModel);
-
-        [MenuItem("Assets/Create/Recipe")]
+        protected override Type GraphModelType => typeof(GraphifyModel);
+        
         public static void CreateGraph(MenuCommand menuCommand)
         {
             const string path = "Assets";
-            var template = new GraphTemplate<RecipeStencil>(RecipeStencil.graphName);
+            var template = new GraphTemplate<GraphifyStencil>(GraphifyStencil.graphName);
             CommandDispatcher commandDispatcher = null;
-            if (EditorWindow.HasOpenInstances<RecipeGraphWindow>())
+            if (EditorWindow.HasOpenInstances<GraphifyWindow>())
             {
-                var window = EditorWindow.GetWindow<RecipeGraphWindow>();
+                var window = EditorWindow.GetWindow<GraphifyWindow>();
                 if (window != null)
                 {
                     commandDispatcher = window.CommandDispatcher;
                 }
             }
 
-            GraphAssetCreationHelpers<RecipeGraphAssetModel>.CreateInProjectWindow(template, commandDispatcher, path);
+            GraphAssetCreationHelpers<GraphifyAssetModel>.CreateInProjectWindow(template, commandDispatcher, path);
         }
 
         [OnOpenAsset(1)]
         public static bool OpenGraphAsset(int instanceId, int line)
         {
             var obj = EditorUtility.InstanceIDToObject(instanceId);
-            if (obj is not RecipeGraphAssetModel) return false;
+            if (obj is not GraphifyAssetModel) return false;
             
             string path = AssetDatabase.GetAssetPath(instanceId);
-            var asset = AssetDatabase.LoadAssetAtPath<RecipeGraphAssetModel>(path);
+            var asset = AssetDatabase.LoadAssetAtPath<GraphifyAssetModel>(path);
             if (asset == null)
                 return false;
 
-            var window = GraphViewEditorWindow.FindOrCreateGraphWindow<RecipeGraphWindow>();
+            var window = GraphViewEditorWindow.FindOrCreateGraphWindow<GraphifyWindow>();
             return window != null;
 
         }

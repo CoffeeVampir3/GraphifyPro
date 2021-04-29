@@ -31,7 +31,7 @@
 }
 
 #customBlackboard {
-    background-color: rgba(0, 0, 0, .03);
+    background-color: rgba(0, 0, 0, 0);
     width: 275px;
     height: 100%;
     left: 0;

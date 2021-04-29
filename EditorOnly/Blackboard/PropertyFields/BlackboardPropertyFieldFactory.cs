@@ -16,6 +16,9 @@ namespace Vampire.Binding
         private static string bindKey;
         private static PropertyFieldBinder fieldBinder;
 
+        /// <summary>
+        /// Returns all types drawable by the field factory.
+        /// </summary>
         public static IReadOnlyCollection<Type> GetDrawableTypes()
         {
             if (!initialized)
@@ -26,7 +29,7 @@ namespace Vampire.Binding
 
             return creationTypes;
         }
-
+        
         public static BindableElement Create(Type t, object someObject, PropertyFieldBinder binder, 
             string bindTo = null)
         {

@@ -41,7 +41,6 @@ namespace Vampire.Graphify.EditorOnly
             var toPortalModel = linkedPortals.FirstOrDefault(e => fromPortalModel != e);
             var oppositeEdge = toPortalModel?.GetConnectedEdges().FirstOrDefault();
             return ResolveFromEndPointTo(oppositeEdge?.FromPort, out endPointNode, out endPointPort);
-
         }
         
         //Recurs through portaled connections and creates real connections
@@ -252,7 +251,7 @@ namespace Vampire.Graphify.EditorOnly
             SetupRuntimePortDataTable(blueprint);
         }
 
-        private static void SerializeBlackboard(RecipeGraphAssetModel assetModel, 
+        private static void SerializeBlackboard(GraphifyAssetModel assetModel, 
             RuntimeGraphBlueprint blueprint)
         {
             if (assetModel.blackboardData != null)
@@ -271,7 +270,7 @@ namespace Vampire.Graphify.EditorOnly
         public static void Build(GraphToolState graphToolState, BuildAllEditorCommand command)
         {
             var model = graphToolState.WindowState.GraphModel;
-            if (!(model.AssetModel is RecipeGraphAssetModel assetModel))
+            if (!(model.AssetModel is GraphifyAssetModel assetModel))
                 return;
 
             var blueprint = assetModel.runtimeBlueprint;

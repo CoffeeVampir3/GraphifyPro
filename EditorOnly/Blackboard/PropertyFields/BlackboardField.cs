@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using UnityEditor.GraphToolsFoundation.Overdrive;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -7,6 +8,14 @@ namespace Vampire.Binding
 {
     public class BlackboardField : VisualElement
     {
+        /// <summary>
+        /// Creates a new blackboard field with a unique binding key.
+        /// </summary>
+        /// <param name="t"></param>
+        /// <param name="binder"></param>
+        /// <param name="updateViewAction"></param>
+        /// <param name="svParent"></param>
+        /// <returns></returns>
         public static BlackboardField CreateNew(Type t, PropertyFieldBinder binder, 
             Action updateViewAction, VisualElement svParent)
         {
@@ -28,11 +37,16 @@ namespace Vampire.Binding
             var propertyName = t.FriendlyName() + " " + UnityEngine.Random.Range(0, 99);
             var pv = new PropertyValue(newItem, propertyName);
             var fieldKey = t.Name + Guid.NewGuid();
+            
             binder.boundDictionary.Add(fieldKey, pv);
+            
             return new BlackboardField(fieldKey, t,
                 pv, binder, updateViewAction, svParent);
         }
 
+        /// <summary>
+        /// Loads a blackboard field using the provided unique binding key.
+        /// </summary>
         public static BlackboardField LoadField(string fieldKey, Type t, PropertyValue someObject,
             PropertyFieldBinder binder, Action updateViewAction, VisualElement svParent)
         {

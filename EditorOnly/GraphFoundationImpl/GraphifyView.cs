@@ -2,9 +2,9 @@
 
 namespace Vampire.Graphify.EditorOnly
 {
-    public class RecipeGraphView : GraphView
+    public class GraphifyView : GraphView
     {
-        public RecipeGraphView(GraphViewEditorWindow window, 
+        public GraphifyView(GraphViewEditorWindow window, 
             CommandDispatcher commandDispatcher) : base(window, commandDispatcher) { }
     }
 }

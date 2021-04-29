@@ -15,17 +15,25 @@ namespace Vampire.Graphify.EditorOnly.Search
         const string k_Sticky = "Sticky Note";
         private readonly List<SearcherItem> items;
         private readonly Stencil stencil;
-        private IGraphModel graphModel;
+        private GraphifyAssetModel assetModel;
+        private Type blueprintType;
         
         public GraphifyElementDatabase(Stencil stencil, IGraphModel graphModel)
         {
             this.stencil = stencil;
-            this.items = new List<SearcherItem>();
-            this.graphModel = graphModel;
+            items = new List<SearcherItem>();
+            if (graphModel.AssetModel is GraphifyAssetModel assModel)
+            {
+                assetModel = assModel;
+                blueprintType = assetModel.runtimeBlueprint.GetType();
+            }
         }
 
         public GraphifyElementDatabase AddGraphifyNodes()
         {
+            if (assetModel == null)
+                return this;
+            
             var types = TypeCache.GetTypesWithAttribute<GraphifyNode>();
             foreach (var type in types)
             {
@@ -37,6 +45,9 @@ namespace Vampire.Graphify.EditorOnly.Search
                 {
                     var name = attribute.path.Split('/').Last();
                     var path = attribute.path.Remove(attribute.path.LastIndexOf('/') + 1);
+
+                    if (!(attribute.graphifyBlueprintType == blueprintType))
+                        continue;
                     
                     //The graph node model searcher item is special, can't use our own.
                     //So we're bootstrapping it.

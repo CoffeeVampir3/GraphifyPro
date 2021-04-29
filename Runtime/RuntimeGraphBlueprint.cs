@@ -5,8 +5,7 @@ using UnityEngine;
 
 namespace Vampire.Runtime
 {
-    [CreateAssetMenu]
-    public class RuntimeGraphBlueprint : SerializedScriptableObject
+    public abstract class RuntimeGraphBlueprint : SerializedScriptableObject
     {
         [NonSerialized, OdinSerialize]
         public RuntimeNode[] nodes;

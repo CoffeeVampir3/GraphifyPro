@@ -27,6 +27,9 @@ namespace Vampire.Binding
             retainer.Serialize(boundDictionary);
         }
 
+        /// <summary>
+        /// Binds a typed argument to a BaseField matching that typed argument using the provided key.
+        /// </summary>
         public void BindingResolver<ArgType, FieldType>(FieldType field, object obj, string key)
         where FieldType : BaseField<ArgType>
         {

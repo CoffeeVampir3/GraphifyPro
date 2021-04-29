@@ -12,8 +12,8 @@ namespace Vampire.Graphify.EditorOnly
         public string fieldName;
         [SerializeField]
         public int currentSize = 0;
-        public int minSize;
-        public int maxSize;
+        public int minSize = 0;
+        public int maxSize = byte.MaxValue;
         public OrderedPorts ports = new();
 
         public DynamicPortInfo(string fieldName, 
@@ -24,11 +24,6 @@ namespace Vampire.Graphify.EditorOnly
             {
                 minSize = dynDef.min;
                 maxSize = dynDef.max;
-            }
-            else
-            {
-                minSize = 0;
-                maxSize = byte.MaxValue;
             }
             if(minSize > maxSize)
                 Debug.LogError("Resizable port defined with great min size than max size!");

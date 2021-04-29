@@ -14,10 +14,10 @@ namespace Vampire.Graphify.EditorOnly
     [Serializable]
     public class GraphifyNodeModel : NodeModel, IRenamable, IHasRuntimeNode
     {
-        [SerializeReference]
-        public RuntimeNode runtimeNode;
         [SerializeField]
         protected string nodeName;
+        [SerializeReference]
+        public RuntimeNode runtimeNode;
         [SerializeField, HideInInspector]
         protected InfoCollection<PortInfo, PortDefinition> portInfo = new();
         [SerializeField, HideInInspector] 

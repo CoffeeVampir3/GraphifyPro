@@ -1,25 +1,23 @@
 ﻿using UnityEditor.GraphToolsFoundation.Overdrive;
-using UnityEditor.GraphToolsFoundation.Overdrive.BasicModel;
 using Vampire.Graphify.EditorOnly.Search;
+using PortCapacity = UnityEditor.GraphToolsFoundation.Overdrive.PortCapacity;
 
 namespace Vampire.Graphify.EditorOnly
 {
-    public class RecipeStencil : Stencil
+    public class GraphifyStencil : Stencil
     {
-        public static string toolName = "Recipe Editor";
+        public static string toolName = "Graphify Pro";
         public override string ToolName => toolName;
 
-        public static readonly string graphName = "Recipe";
+        public static readonly string graphName = "Graphify Pro";
         public override IGraphProcessingErrorModel CreateProcessingErrorModel(GraphProcessingError error)
         {
-            if (error.SourceNode != null && !error.SourceNode.Destroyed)
-            {
-                return new GraphProcessingErrorModel(error);
-            }
-
             return null;
         }
 
+        /// <summary>
+        /// All ports have a default capacity of single unless they explicitly declare a capacity.
+        /// </summary>
         public override bool GetPortCapacity(IPortModel portModel, out PortCapacity capacity)
         {
             capacity = PortCapacity.Single;

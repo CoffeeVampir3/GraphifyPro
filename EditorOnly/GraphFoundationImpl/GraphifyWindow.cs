@@ -8,7 +8,7 @@ using Vampire.Binding;
 
 namespace Vampire.Graphify.EditorOnly
 {
-    public class RecipeGraphWindow : GraphViewEditorWindow
+    public class GraphifyWindow : GraphViewEditorWindow
     {
         [SerializeField]
         public StyleSheet graphifyStyler;
@@ -16,13 +16,13 @@ namespace Vampire.Graphify.EditorOnly
         [InitializeOnLoadMethod]
         static void RegisterTool()
         {
-            ShortcutHelper.RegisterDefaultShortcuts<RecipeGraphWindow>(RecipeStencil.toolName);
+            ShortcutHelper.RegisterDefaultShortcuts<GraphifyWindow>(GraphifyStencil.toolName);
         }
 
         [MenuItem("GTF Samples/Recipe Editor", false)]
         public static void ShowRecipeGraphWindow()
         {
-            FindOrCreateGraphWindow<RecipeGraphWindow>();
+            FindOrCreateGraphWindow<GraphifyWindow>();
         }
         
         //TODO::(Z) Matching variables used for the hack as described in update.
@@ -32,7 +32,7 @@ namespace Vampire.Graphify.EditorOnly
         protected override void OnEnable()
         {
             base.OnEnable();
-            EditorToolName = "Recipe Editor";
+            EditorToolName = "Graphify Pro";
             rootVisualElement.styleSheets.Add(graphifyStyler);
             
             sidePanelTarget = 
@@ -54,6 +54,8 @@ namespace Vampire.Graphify.EditorOnly
             prevTarget = currentTarget;
             sidePanelTarget.ClearTarget();
             sidePanelTarget.SetTarget(currentTarget);
+            
+            //More hacks to create blackboard.
             TryCreateBlackboard();
         }
 
@@ -61,7 +63,7 @@ namespace Vampire.Graphify.EditorOnly
         {
             if (CreatedBlackboard) return;
             var mew = m_GraphView?.GraphModel?.AssetModel;
-            if (mew is not RecipeGraphAssetModel graphifyAssetModel) return;
+            if (mew is not GraphifyAssetModel graphifyAssetModel) return;
             CustomBlackboard blackboard = new CustomBlackboard(graphifyAssetModel.blackboardData);
             rootVisualElement.Q("graphContainer").Add(blackboard);
             blackboard.BringToFront();
@@ -69,7 +71,7 @@ namespace Vampire.Graphify.EditorOnly
 
         protected override GraphView CreateGraphView()
         {
-            return new RecipeGraphView(this, CommandDispatcher);
+            return new GraphifyView(this, CommandDispatcher);
         }
         
         protected override void RegisterCommandHandlers()
@@ -85,8 +87,8 @@ namespace Vampire.Graphify.EditorOnly
             public override VisualElement CreateOnboardingElements(
                 CommandDispatcher commandDispatcher)
             {
-                var template = new GraphTemplate<RecipeStencil>(RecipeStencil.graphName);
-                return AddNewGraphButton<RecipeGraphAssetModel>(template);
+                var template = new GraphTemplate<GraphifyStencil>(GraphifyStencil.graphName);
+                return AddNewGraphButton<GraphifyAssetModel>(template);
             }
         }
 

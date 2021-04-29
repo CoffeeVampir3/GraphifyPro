@@ -3,7 +3,7 @@ using Vampire.Runtime;
 
 namespace Vampire.Graphify.EditorOnly.StaticBridge
 {
-    public static class AttributeExtensions
+    public static class EnumExtensionsBridge
     {
         public static UnityEditor.GraphToolsFoundation.Overdrive.PortCapacity ToUnity(this PortCapacity pc)
         {

@@ -8,7 +8,7 @@ namespace Vampire.Runtime
     [Serializable]
     public abstract class RuntimeNode
     {
-        [SerializeField] 
+        [SerializeField, HideInInspector] 
         internal short nodeId = -1;
 
         public abstract RuntimeNode Evaluate(Context ctx);
