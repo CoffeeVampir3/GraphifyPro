@@ -8,9 +8,9 @@ namespace Vampire.Runtime
     [Serializable]
     public abstract class RuntimeBasePort : IRuntimeBasePort
     {
-        [SerializeField, HideInInspector]
+        [SerializeField]
         protected internal List<Link> links = new();
-        [SerializeField, HideInInspector] 
+        [SerializeField] 
         protected internal short portId = -1;
 
         public virtual void Editor_Reset()

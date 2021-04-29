@@ -10,12 +10,15 @@ namespace Vampire.Graphify.EditorOnly
 {
     public static class CompiledGraphBuilder
     {
-        private static readonly Dictionary<IPortModel, short> portModelToId = new();
+        private static readonly Dictionary<IPortModel, short> portModelToValueId = new();
         private static readonly Dictionary<short, object> portIdToInitialValue = new();
-        private static readonly Dictionary<DynamicPortInfo, short> dynamicPortToId = new();
+        private static readonly Dictionary<short, DynamicPortInfo> idToDynamicGroup = new();
+        private static readonly Dictionary<IPortModel, short> portToDynamicGroupId = new();
+        private static readonly Dictionary<DynamicPortInfo, short> dynamicGroupToValueId = new();
         private static readonly List<IRuntimeBasePort> allRuntimePorts = new();
         private static Stencil stencil;
         private static short currentPortId = -1;
+        private static short currentDynamicIdentifier = -1;
         private static void Swap<T>(ref T rhs, ref T lhs)
         {
             T temp = lhs;
@@ -23,11 +26,18 @@ namespace Vampire.Graphify.EditorOnly
             rhs = temp;
         }
 
+        private static short ResolvePortValueId(IPortModel port)
+        {
+            if (portModelToValueId.TryGetValue(port, out var id))
+                return id;
+            return -1;
+        }
+
         private static IPortModel GetToPort(IEdgeModel edge) => edge.ToPort;
         private static IPortModel GetFromPort(IEdgeModel edge) => edge.FromPort;
         
         //Recurs through portaled connections and creates real connections
-        private static bool ResolveEndPointFrom(IPortModel toPort, 
+        private static bool ResolveEndPointFrom(IPortModel targetPort, 
             out short endPointNodeId, out short endPointPortId, 
             Func<IEdgeModel, IPortModel> getPortFunc)
         {
@@ -35,16 +45,16 @@ namespace Vampire.Graphify.EditorOnly
             {
                 endPointNodeId = -1;
                 endPointPortId = -1;
-                var targetNode = toPort.NodeModel;
+                var targetNode = targetPort.NodeModel;
                 switch (targetNode)
                 {
                     case IHasRuntimeNode rtNode:
                         endPointNodeId = rtNode.RuntimeNodeId;
-                        endPointPortId = portModelToId[toPort];
+                        endPointPortId = ResolvePortValueId(targetPort);
                         return true;
                     case IVariableNodeModel:
                         endPointNodeId = -1;
-                        endPointPortId = portModelToId[toPort];
+                        endPointPortId = ResolvePortValueId(targetPort);
                         return true;
                 }
 
@@ -52,7 +62,7 @@ namespace Vampire.Graphify.EditorOnly
                 var linkedPortals = stencil.GetLinkedPortals(toPortalModel);
                 var fromPortalModel = linkedPortals.FirstOrDefault(e => toPortalModel != e);
                 var oppositeEdge = fromPortalModel?.GetConnectedEdges().FirstOrDefault();
-                toPort = getPortFunc.Invoke(oppositeEdge);
+                targetPort = getPortFunc.Invoke(oppositeEdge);
             }
         }
 
@@ -92,23 +102,56 @@ namespace Vampire.Graphify.EditorOnly
             return true;
         }
 
-        private static void AssignPortIdentifiers(short portId, IRuntimeBasePort bp)
+
+        private static short ResolveDynamicPortId(short groupId, IPortWithValue valuePort)
         {
-            if (portIdToInitialValue.ContainsKey(portId))
-                return;
-            switch (bp)
+            if (!idToDynamicGroup.TryGetValue(groupId, out var dynGroup)) {return -1;}
+            if (dynamicGroupToValueId.TryGetValue(dynGroup, out var valueId))
             {
-                case IPortWithValue valuePort:
-                    portIdToInitialValue.Add(portId, valuePort.GetInitValue());
-                    break;
+                return valueId;
             }
-            bp.PortId = portId;
+
+            var newId = ++currentPortId;
+            dynamicGroupToValueId.Add(dynGroup, newId);
+            portIdToInitialValue.Add(newId, valuePort.GetInitValue());
+            return newId;
         }
-        
-        private static void AssignPortIdentifiers(IPortModel portModel, 
-            IRuntimeBasePort bp)
+
+        private static void AssignSpecialPortIdentifiers(IPortModel portModel, 
+            IRuntimeBasePort bp, bool isDynamic)
         {
-            AssignPortIdentifiers(portModelToId[portModel], bp);
+            short portId;
+            //Port is not a value port, it has no value id.
+            if (bp is not IPortWithValue valuePort)
+            {
+                bp.PortId = -1;
+                return;
+            }
+
+            //If this port is a value port, assign it a new id.
+            if (portModelToValueId.TryGetValue(portModel, out var id))
+            {
+                portId = id;
+                bp.PortId = portId;
+                return;
+            }
+
+            if (portToDynamicGroupId.TryGetValue(portModel, out var dynamicGroupId))
+            {
+                //Assign dynamic id if dynamic
+                portId = ResolveDynamicPortId(dynamicGroupId, valuePort);
+                portModelToValueId.Add(portModel, portId);
+                bp.PortId = portId;
+                return;
+            }
+
+            if (isDynamic)
+                return;
+            
+            portId = ++currentPortId;
+            portModelToValueId.Add(portModel, portId);
+            portIdToInitialValue.Add(portId, valuePort.GetInitValue());
+            bp.PortId = portId;
         }
 
         private static void VisitEdgeFromOrigin(IEdgeModel edge,
@@ -126,7 +169,6 @@ namespace Vampire.Graphify.EditorOnly
             foreach (var edge in edges)
             {
                 bool edgeOriginIsFrom = edge.FromPort != port;
-                AssignPortIdentifiers(port, bp);
                 VisitEdgeFromOrigin(edge, bp, edgeOriginIsFrom, dynamicPortIndex);
             }
         }
@@ -135,17 +177,20 @@ namespace Vampire.Graphify.EditorOnly
         {
             foreach (var port in variableNode.Ports)
             {
-                portIdToInitialValue.Add(portModelToId[port],
+                //Sort of a hack to easily inject the values into the graph, but it's elegant and
+                //works.
+                portModelToValueId.Add(port, ++currentPortId);
+                portIdToInitialValue.Add(portModelToValueId[port],
                     variableNode.VariableDeclarationModel.InitializationModel.ObjectValue);
             }
         }
 
         private static readonly Dictionary<string, IRuntimeBasePort> fieldNameToBasePort = new();
-        private static void VisitRuntimeModel(IHasRuntimeNode hasRuntimeNode)
+        private static void IdentifyRuntimeNodeModel(IHasRuntimeNode hasRuntimeNode)
         {
             var rtNode = hasRuntimeNode.RuntimeNode;
             var dynamicPorts = hasRuntimeNode.DynamicPortList;
-            var portList = hasRuntimeNode.Ports;
+            var portList = hasRuntimeNode.Ports.ToArray();
             var dynamicFieldNames = new HashSet<string>();
             fieldNameToBasePort.Clear();
 
@@ -162,8 +207,6 @@ namespace Vampire.Graphify.EditorOnly
                 fieldNameToBasePort.Add(field.Name, bp);
                 allRuntimePorts.Add(bp);
             }
-
-            //Broken into passes so we can avoid high complexity iterations.
             
             //First pass creates dynamic port filter hash set and assign the dynamic port
             //it's own identifiers.
@@ -171,23 +214,50 @@ namespace Vampire.Graphify.EditorOnly
             {
                 dynamicFieldNames.Add(dynamicPort.fieldName);
                 if (!fieldNameToBasePort.TryGetValue(dynamicPort.fieldName, out var bp)) continue;
-                if (dynamicPortToId.TryGetValue(dynamicPort, out var id))
+                foreach (var dynPort in dynamicPort.ports.Values)
                 {
-                    AssignPortIdentifiers(id, bp);
+                    AssignSpecialPortIdentifiers(dynPort, bp, true);
                 }
             }
 
-            //Second pass visits all non-dynamic ports
+            //Identify each non-dynamic port.
             foreach (var port in portList)
             {
-                if (dynamicFieldNames.Contains(port.UniqueName)) continue;
+                if (fieldNameToBasePort.TryGetValue(port.UniqueName, out var bp))
+                {
+                    AssignSpecialPortIdentifiers(port, bp, false);
+                }
+            }
+        }
+        
+        private static void VisitRuntimeModel(IHasRuntimeNode hasRuntimeNode)
+        {
+            var rtNode = hasRuntimeNode.RuntimeNode;
+            var dynamicPorts = hasRuntimeNode.DynamicPortList;
+            var portList = hasRuntimeNode.Ports.ToArray();
+            fieldNameToBasePort.Clear();
+
+            //Iterate over all defined fields, 
+            rtNode.GetDefinedPortFields(out var fields, out _);
+            foreach (var field in fields)
+            {
+                var bp = field.GetValue(rtNode) as IRuntimeBasePort;
+                if (bp == null)
+                {
+                    continue;
+                }
+                fieldNameToBasePort.Add(field.Name, bp);
+            }
+
+            //visit all non-dynamic ports
+            foreach (var port in portList)
+            {
                 if (fieldNameToBasePort.TryGetValue(port.UniqueName, out var bp))
                 {
                     VisitRuntimePort(port, bp);
                 }
             }
             
-            //Third pass visits all dynamic ports
             //We iterate dynamic ports in a separate pass so we can sequence them correctly.
             foreach (var dynamicPort in dynamicPorts)
             {
@@ -255,11 +325,14 @@ namespace Vampire.Graphify.EditorOnly
 
             var blueprint = assetModel.runtimeBlueprint;
             List<RuntimeNode> runtimeNodes = new();
-            portModelToId.Clear();
+            portModelToValueId.Clear();
             portIdToInitialValue.Clear();
-            dynamicPortToId.Clear();
+            idToDynamicGroup.Clear();
             allRuntimePorts.Clear();
+            portToDynamicGroupId.Clear();
+            dynamicGroupToValueId.Clear();
             currentPortId = -1;
+            currentDynamicIdentifier = -1;
             stencil = model.Stencil;
 
             //First loop over node models, assign each one a unique id so we
@@ -284,27 +357,30 @@ namespace Vampire.Graphify.EditorOnly
                             {
                                 if (!port.GetConnectedEdges().Any())
                                     continue;
+
                                 if (dynamicId == -1)
                                 {
-                                    dynamicId = ++currentPortId;
-                                    dynamicPortToId.Add(dynamicPort, dynamicId);
+                                    dynamicId = ++currentDynamicIdentifier;
+                                    idToDynamicGroup.Add(dynamicId, dynamicPort);
                                 }
-
-                                portModelToId.Add(port, dynamicId);
+                                portToDynamicGroupId.Add(port, dynamicId);
                             }
                         }
                         break;
                 }
             }
             
-            //Assign every port with > 0 connections an id
-            foreach (var port in model.GetPortModels())
+            //Identify all runtime nodes.
+            foreach (var nodeModel in model.NodeModels)
             {
-                if (!port.GetConnectedEdges().Any() || portModelToId.ContainsKey(port))
-                    continue;
-                portModelToId.Add(port, ++currentPortId);
+                switch (nodeModel)
+                {
+                    case IHasRuntimeNode graphifyNodeModel:
+                        IdentifyRuntimeNodeModel(graphifyNodeModel);
+                        break;
+                }
             }
-
+            
             //Every node model is now indexed, visit each model.
             foreach (var nodeModel in model.NodeModels)
             {
