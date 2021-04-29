@@ -108,23 +108,7 @@ namespace Vampire.Graphify.EditorOnly
         private static void AssignPortIdentifiers(IPortModel portModel, 
             IRuntimeBasePort bp)
         {
-            short id = -1;
-            if (portModelToId.TryGetValue(portModel, out var value))
-            {
-                id = value;
-            }
-            else
-            {
-                if (bp is IPortWithValue)
-                {
-                    id = ++currentPortId;
-                    portModelToId.Add(portModel, id);
-                }
-            }
-
-            if (id < 0)
-                return;
-            AssignPortIdentifiers(id, bp);
+            AssignPortIdentifiers(portModelToId[portModel], bp);
         }
 
         private static void VisitEdgeFromOrigin(IEdgeModel edge,
