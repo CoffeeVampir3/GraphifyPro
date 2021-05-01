@@ -6,7 +6,7 @@ namespace Vampire.Runtime
     public class Context
     {
         public readonly RuntimeGraph currentGraph;
-        public Dictionary<string, object> LocalBlackboard => currentGraph.localBlackboard;
+        public PropertyDictionary Properties => currentGraph.properties;
         private readonly Stack<RuntimeNode> contextStack = new();
         
         public Context(RuntimeGraph virtGraph)

@@ -1,12 +1,11 @@
-﻿using System.Collections.Generic;
-
-namespace Vampire.Runtime
+﻿namespace Vampire.Runtime
 {
     public class RuntimeGraph
     {
         public readonly RuntimeNode[] nodes;
         public readonly object[] values;
-        public readonly Dictionary<string, object> localBlackboard = null;
+        public readonly PropertyDictionary properties;
+        internal static RuntimeGraph current;
 
         //Copies our value array in a way that preserves the allocation wrappers.
         private void DeepCopyValueWrappers(ref object[] origValues)
@@ -26,13 +25,11 @@ namespace Vampire.Runtime
             values = new object[blueprint.initializationValues.Length];
             //Shallow copy objects
             blueprint.initializationValues.CopyTo(values, 0);
-            
             //Deep copy wrapper pointers
             DeepCopyValueWrappers(ref blueprint.initializationValues);
-            localBlackboard = blueprint.serializedBlackboard != null ? 
-                blueprint.serializedBlackboard.Deserialize() : 
-                new Dictionary<string, object>();
-            
+            //No need to copy since these values are immutable.
+            properties = blueprint.localProperties;
+
             nodes = blueprint.nodes;
         }
     }

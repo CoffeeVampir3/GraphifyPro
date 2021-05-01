@@ -15,9 +15,12 @@ namespace Vampire.Graphify.EditorOnly
         private static readonly Dictionary<short, DynamicPortInfo> idToDynamicGroup = new();
         private static readonly Dictionary<IPortModel, short> portToDynamicGroupId = new();
         private static readonly Dictionary<DynamicPortInfo, short> dynamicGroupToValueId = new();
+        private static readonly Dictionary<string, short> blackboardBuilder = new();
+        private static readonly Dictionary<string, IRuntimeBasePort> fieldNameToBasePort = new();
+        private static readonly Dictionary<IVariableDeclarationModel, short> declModelToValId = new();
         private static readonly List<IRuntimeBasePort> allRuntimePorts = new();
         private static Stencil stencil;
-        private static short currentPortId = -1;
+        private static short currentPortValueId = -1;
         private static short currentDynamicIdentifier = -1;
         private static void Swap<T>(ref T rhs, ref T lhs)
         {
@@ -53,6 +56,7 @@ namespace Vampire.Graphify.EditorOnly
                         endPointPortId = ResolvePortValueId(targetPort);
                         return true;
                     case IVariableNodeModel:
+                        //Variable nodes are not valid to traverse to.
                         endPointNodeId = -1;
                         endPointPortId = ResolvePortValueId(targetPort);
                         return true;
@@ -111,7 +115,7 @@ namespace Vampire.Graphify.EditorOnly
                 return valueId;
             }
 
-            var newId = ++currentPortId;
+            var newId = ++currentPortValueId;
             dynamicGroupToValueId.Add(dynGroup, newId);
             portIdToInitialValue.Add(newId, valuePort.GetInitValue());
             return newId;
@@ -136,6 +140,7 @@ namespace Vampire.Graphify.EditorOnly
                 return;
             }
 
+            //If the port is dynamic and has a group id
             if (portToDynamicGroupId.TryGetValue(portModel, out var dynamicGroupId))
             {
                 //Assign dynamic id if dynamic
@@ -145,15 +150,19 @@ namespace Vampire.Graphify.EditorOnly
                 return;
             }
 
+            //If the port is dynamic but is not assigned an id, we don't want it to fall through.
             if (isDynamic)
                 return;
             
-            portId = ++currentPortId;
+            portId = ++currentPortValueId;
             portModelToValueId.Add(portModel, portId);
             portIdToInitialValue.Add(portId, valuePort.GetInitValue());
             bp.PortId = portId;
         }
 
+        /// <summary>
+        /// Visits an edge and tries to build a link to it from this origin port.
+        /// </summary>
         private static void VisitEdgeFromOrigin(IEdgeModel edge,
             IRuntimeBasePort bp, bool originIsToPort, short dynamicPortIndex)
         {
@@ -162,6 +171,9 @@ namespace Vampire.Graphify.EditorOnly
             bp.AddLink(link);
         }
 
+        /// <summary>
+        /// Visits the given port and all of its edges.
+        /// </summary>
         private static void VisitRuntimePort(IPortModel port, 
             IRuntimeBasePort bp, short dynamicPortIndex = -1)
         {
@@ -172,20 +184,41 @@ namespace Vampire.Graphify.EditorOnly
                 VisitEdgeFromOrigin(edge, bp, edgeOriginIsFrom, dynamicPortIndex);
             }
         }
-
+        
+        /// <summary>
+        /// Identifies this variable node, since variable nodes have a singular port but possibly
+        /// have multiple instances of themselves which share a value, they all share the same port id.
+        /// </summary>
+        /// <param name="variableNode"></param>
+        private static void IdentifyVariableNodeModel(IVariableNodeModel variableNode)
+        {
+            if (!declModelToValId.TryGetValue(variableNode.VariableDeclarationModel, out var portId))
+            {
+                portId = ++currentPortValueId;
+                declModelToValId.Add(variableNode.VariableDeclarationModel, portId);
+            }
+            var port = variableNode.Ports.FirstOrDefault();
+            portModelToValueId.Add(port!, portId);
+        }
+        
+        /// <summary>
+        /// Visits a variable node (the thing you drag in from the blackboard) and assign it
+        /// a singular id and value. Which just makes sense, really.
+        /// </summary>
         private static void VisitVariableNodeModel(IVariableNodeModel variableNode)
         {
-            foreach (var port in variableNode.Ports)
-            {
-                //Sort of a hack to easily inject the values into the graph, but it's elegant and
-                //works.
-                portModelToValueId.Add(port, ++currentPortId);
-                portIdToInitialValue.Add(portModelToValueId[port],
-                    variableNode.VariableDeclarationModel.InitializationModel.ObjectValue);
-            }
+            if (blackboardBuilder.TryGetValue(variableNode.VariableDeclarationModel.DisplayTitle, out _)) return;
+            var port = variableNode.Ports.FirstOrDefault();
+            portIdToInitialValue.Add(portModelToValueId[port!],
+                variableNode.VariableDeclarationModel.InitializationModel.ObjectValue);
+            blackboardBuilder.Add(variableNode.VariableDeclarationModel.DisplayTitle, 
+                portModelToValueId[port]);
         }
-
-        private static readonly Dictionary<string, IRuntimeBasePort> fieldNameToBasePort = new();
+        
+        /// <summary>
+        /// Identifies (and assigns an id to, if needed) ports on this node.
+        /// </summary>
+        /// <param name="hasRuntimeNode"></param>
         private static void IdentifyRuntimeNodeModel(IHasRuntimeNode hasRuntimeNode)
         {
             var rtNode = hasRuntimeNode.RuntimeNode;
@@ -230,6 +263,10 @@ namespace Vampire.Graphify.EditorOnly
             }
         }
         
+        /// <summary>
+        /// Visits a runtime model which snakes through each port and will visit each
+        /// port connection from the perspective of this node.
+        /// </summary>
         private static void VisitRuntimeModel(IHasRuntimeNode hasRuntimeNode)
         {
             var rtNode = hasRuntimeNode.RuntimeNode;
@@ -249,7 +286,7 @@ namespace Vampire.Graphify.EditorOnly
                 fieldNameToBasePort.Add(field.Name, bp);
             }
 
-            //visit all non-dynamic ports
+            //Visit all non-dynamic ports.
             foreach (var port in portList)
             {
                 if (fieldNameToBasePort.TryGetValue(port.UniqueName, out var bp))
@@ -271,29 +308,9 @@ namespace Vampire.Graphify.EditorOnly
             }
         }
 
-        //No need to clear, since these types are consistent. We can keep these cached 4ever
-        private static readonly Dictionary<Type, Type> typeToWrapperType = new();
-        private static AntiAllocationWrapper CreateValueTypeWrapper(object value)
-        {
-            var valueType = value.GetType();
-            if (!typeToWrapperType.TryGetValue(valueType, out var wrapperType))
-            {
-                wrapperType = typeof(AntiAllocationWrapper<>).MakeGenericType(valueType);
-                typeToWrapperType.Add(valueType, wrapperType);
-            }
-
-            if (Activator.CreateInstance(wrapperType) is not AntiAllocationWrapper wrappedValue)
-            {
-                Debug.LogError("System was unable to create a valid allocation wrapper for type: " + valueType + 
-                               " this is a critical bug, please report this.");
-                return null;
-            }
-            wrappedValue.SetValue(value);
-            return wrappedValue;
-        }
-        
         /// <summary>
-        /// Copies all ports with initial values into the blueprint's value initialization table.
+        /// Iterates through all portId->InitValue relations and creates a flattened array indexed via
+        /// the port id.
         /// </summary>
         private static void SetupRuntimePortDataTable(RuntimeGraphBlueprint blueprint)
         {
@@ -303,7 +320,7 @@ namespace Vampire.Graphify.EditorOnly
                 
                 if (initialValue != null && initialValue.GetType().IsValueType)
                 {
-                    blueprint.initializationValues[i] = CreateValueTypeWrapper(initialValue);
+                    blueprint.initializationValues[i] = AntiAllocationWrapper.CreateValueTypeWrapper(initialValue);
                 }
                 else
                 {
@@ -331,7 +348,9 @@ namespace Vampire.Graphify.EditorOnly
             allRuntimePorts.Clear();
             portToDynamicGroupId.Clear();
             dynamicGroupToValueId.Clear();
-            currentPortId = -1;
+            blackboardBuilder.Clear();
+            declModelToValId.Clear();
+            currentPortValueId = -1;
             currentDynamicIdentifier = -1;
             stencil = model.Stencil;
 
@@ -378,10 +397,14 @@ namespace Vampire.Graphify.EditorOnly
                     case IHasRuntimeNode graphifyNodeModel:
                         IdentifyRuntimeNodeModel(graphifyNodeModel);
                         break;
+                    case IVariableNodeModel variableNodeModel:
+                        IdentifyVariableNodeModel(variableNodeModel);
+                        break;
                 }
             }
             
-            //Every node model is now indexed, visit each model.
+            //Every node model is now indexed, we'll visit each model which will recurse into
+            //Node->Ports->Edges->Create Links per Edge
             foreach (var nodeModel in model.NodeModels)
             {
                 switch (nodeModel)
@@ -402,9 +425,17 @@ namespace Vampire.Graphify.EditorOnly
             }
 
             blueprint.nodes = runtimeNodes.ToArray();
-            blueprint.initializationValues = new object[currentPortId+1];
+            blueprint.initializationValues = new object[currentPortValueId+1];
             SetupSpecializedData(blueprint);
 
+            blueprint.localProperties = new PropertyDictionary();
+            foreach (var decl in model.VariableDeclarations)
+            {
+                blueprint.localProperties.Add(
+                    decl.DisplayTitle, decl.InitializationModel.ObjectValue, 
+                    blackboardBuilder);
+            }
+            
             EditorUtility.SetDirty(blueprint);
         }
     }

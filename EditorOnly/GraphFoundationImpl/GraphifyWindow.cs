@@ -4,6 +4,7 @@ using UnityEditor.GraphToolsFoundation.Overdrive;
 using UnityEditor.GraphToolsFoundation.Overdrive.BasicModel;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Vampire.Runtime.SignalLinker;
 
 namespace Vampire.Graphify.EditorOnly
 {
@@ -35,6 +36,53 @@ namespace Vampire.Graphify.EditorOnly
             
             sidePanelTarget = 
                 m_SidePanel.Q("sidePanelInspector") as Unity.Properties.UI.PropertyElement;
+            
+            VisitNodeIdSignal.RegisterListener(ListenForNodeVisitedSignal);
+            EditorApplication.playModeStateChanged += OnPlaymodeChanged;
+        }
+
+        protected override void OnDisable()
+        {
+            VisitNodeIdSignal.UnregisterListener(ListenForNodeVisitedSignal);
+            EditorApplication.playModeStateChanged -= OnPlaymodeChanged;
+        }
+
+        private void OnPlaymodeChanged(PlayModeStateChange change)
+        {
+            switch (change)
+            {
+                case PlayModeStateChange.EnteredEditMode:
+                {
+                    var nodes = this.m_GraphView.Nodes;
+                    foreach (var node in nodes)
+                    {
+                        node.RemoveFromClassList(VisitNodeIdSignal.activeNodeCssClass);
+                    }
+                    break;
+                }
+            }
+        }
+
+        //TODO:: Temp
+        private void ListenForNodeVisitedSignal(VisitNodeIdSignal sig)
+        {
+            var nodes = this.m_GraphView.Nodes;
+            foreach (var node in nodes)
+            {
+                if (node is not DynamicNodeUI rtNode)
+                    continue;
+                if (rtNode.NodeModel is not IHasRuntimeNode rtNodeModel)
+                    continue;
+
+                if (rtNodeModel.RuntimeNodeId == sig.nodeId)
+                {
+                    node.AddToClassList(sig.addedCssUponVisit);
+                }
+                else
+                {
+                    node.RemoveFromClassList(sig.addedCssUponVisit);
+                }
+            }
         }
         
         protected override void Update()

@@ -1,7 +1,6 @@
 ﻿using System;
 using UnityEditor.GraphToolsFoundation.Overdrive;
 using UnityEditor.GraphToolsFoundation.Overdrive.BasicModel;
-using UnityEngine;
 using Vampire.Graphify.EditorOnly.Search;
 using PortCapacity = UnityEditor.GraphToolsFoundation.Overdrive.PortCapacity;
 
@@ -25,7 +24,6 @@ namespace Vampire.Graphify.EditorOnly
 
         public override IConstant CreateConstantValue(TypeHandle constantTypeHandle)
         {
-            Debug.Log("Constant: " + constantTypeHandle.Name);
             IConstant instance;
             var nodeType = TypeToConstantMapper.GetConstantNodeType(constantTypeHandle);
             if (nodeType == null)

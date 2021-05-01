@@ -6,8 +6,7 @@ namespace Vampire.Graphify.EditorOnly
     {
         public bool ShowButton(string buttonName)
         {
-            return true;
-            //return buttonName != MainToolbar.ShowBlackboardButton;
+            return buttonName != MainToolbar.ShowMiniMapButton;
         }
     }
 }

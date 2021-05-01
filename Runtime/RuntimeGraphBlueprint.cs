@@ -1,6 +1,7 @@
 ﻿using System;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
+using UnityEngine;
 
 namespace Vampire.Runtime
 {
@@ -11,7 +12,9 @@ namespace Vampire.Runtime
         [NonSerialized, OdinSerialize] 
         public object[] initializationValues;
         [NonSerialized, OdinSerialize] 
-        public SerializedBlackboard serializedBlackboard = new();
+        public PropertyDictionary localProperties;
+        [SerializeField] 
+        public string generatedPropertyClassName = "";
         //
         public RuntimeGraph CreateRuntimeGraph()
         {

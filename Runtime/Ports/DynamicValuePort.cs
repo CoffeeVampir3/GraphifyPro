@@ -25,7 +25,7 @@ namespace Vampire.Runtime
             {
                 if (portId < 0)
                     return default;
-                var val = CurrentEvaluation.currentGraph.values[portId];
+                var val = RuntimeGraph.current.values[portId];
                 return val switch
                 {
                     AntiAllocationWrapper<T> allocWrap => allocWrap.item,
@@ -37,19 +37,25 @@ namespace Vampire.Runtime
             {
                 if (portId < 0)
                     return;
-                var val = CurrentEvaluation.currentGraph.values[portId];
+                var val = RuntimeGraph.current.values[portId];
                 if (val is AntiAllocationWrapper<T> allocWrap)
                 {
                     allocWrap.SetValue(value);
                     return;
                 }
-                CurrentEvaluation.currentGraph.values[portId] = value;
+                RuntimeGraph.current.values[portId] = value;
             }
         }
 
         public bool TryGetValue(Link link, out T val)
         {
-            var item = CurrentEvaluation.currentGraph.values[link.toPortIndex];
+            if (link.toPortIndex < 0)
+            {
+                val = default;
+                return false;
+            }
+
+            var item = RuntimeGraph.current.values[link.toPortIndex];
             switch (item)
             {
                 case AntiAllocationWrapper<T> allocWrap:
@@ -66,7 +72,13 @@ namespace Vampire.Runtime
 
         public bool TryGetValueAs<SomeType>(Link link, out SomeType val)
         {
-            var item = CurrentEvaluation.currentGraph.values[link.toPortIndex];
+            if (link.toPortIndex < 0)
+            {
+                val = default;
+                return false;
+            }
+            
+            var item = RuntimeGraph.current.values[link.toPortIndex];
             switch (item)
             {
                 case AntiAllocationWrapper<SomeType> allocWrap:

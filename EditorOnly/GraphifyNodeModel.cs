@@ -20,7 +20,7 @@ namespace Vampire.Graphify.EditorOnly
         public RuntimeNode runtimeNode;
         [SerializeField, HideInInspector]
         protected InfoCollection<PortInfo, PortDefinition> portInfo = new();
-        [SerializeField, HideInInspector] 
+        [SerializeField, HideInInspector]
         protected InfoCollection<DynamicPortInfo, DynamicRange> dynamicPorts = new();
 
         public RuntimeNode RuntimeNode => runtimeNode;
