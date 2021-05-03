@@ -22,9 +22,20 @@ namespace Vampire.Graphify.EditorOnly
         protected InfoCollection<PortInfo, PortDefinition> portInfo = new();
         [SerializeField, HideInInspector]
         protected InfoCollection<DynamicPortInfo, DynamicRange> dynamicPorts = new();
-
+        
         public RuntimeNode RuntimeNode => runtimeNode;
-        public short RuntimeNodeId => runtimeNode?.nodeId ?? -1;
+        public short RuntimeNodeId
+        {
+            get
+            {
+                if (runtimeNode == null)
+                {
+                    Debug.LogError("Runtime node is null!");
+                    return -1;
+                }
+                return runtimeNode?.nodeId ?? -1;
+            }
+        }
 
         public IReadOnlyList<DynamicPortInfo> DynamicPortList => dynamicPorts.InfoList;
         public override string Title => nodeName;

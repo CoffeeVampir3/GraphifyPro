@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 using Vampire.Runtime.SignalLinker;
 
 namespace Vampire.Runtime
@@ -22,9 +23,26 @@ namespace Vampire.Runtime
 
             //TODO:: Temp
             #if UNITY_EDITOR
+            BlueprintBuiltSignal.RegisterListener(Editor_ObserveBuildChanges);
             VisitNodeIdSignal visitNodeSig = new VisitNodeIdSignal(currentNode.nodeId, VisitNodeIdSignal.activeNodeCssClass);
             visitNodeSig.Send();
             #endif
+        }
+        
+        private RuntimeNode Editor_ReplaceRebuiltNode(RuntimeNode existing)
+        {
+            return currentNode.nodeId > rtGraph.nodes.Length ? 
+                rtGraph.nodes[rootNodeIndex] : rtGraph.nodes[existing.nodeId];
+        }
+
+        public void Editor_ObserveBuildChanges(BlueprintBuiltSignal sig)
+        {
+            if (blueprint.GetType() != sig.graphBlueprintType) return;
+            //Rebuilds the runtime graph from all new data.
+            rtGraph = blueprint.CreateRuntimeGraph();
+            currentNode = Editor_ReplaceRebuiltNode(currentNode);
+            nextNode = Editor_ReplaceRebuiltNode(nextNode);
+            rootContext.currentGraph = rtGraph;
         }
 
         public bool Step()

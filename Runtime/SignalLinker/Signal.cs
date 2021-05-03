@@ -6,7 +6,7 @@ namespace Vampire.Runtime.SignalLinker
         public delegate void EventListener(T info);
         private static event EventListener listeners;
 
-        public static void DebugSignal(Signal<T> sig)
+        public static void DumpDebugInfo(Signal<T> sig)
         {
             if (listeners == null) return;
             foreach (var listener in listeners.GetInvocationList())

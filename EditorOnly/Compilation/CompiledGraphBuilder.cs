@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.GraphToolsFoundation.Overdrive;
-using UnityEngine;
 using Vampire.Runtime;
+using Vampire.Runtime.SignalLinker;
+using Debug = UnityEngine.Debug;
 
 namespace Vampire.Graphify.EditorOnly
 {
-    public static class CompiledGraphBuilder
+    internal static class CompiledGraphBuilder
     {
         private static readonly Dictionary<IPortModel, short> portModelToValueId = new();
         private static readonly Dictionary<short, object> portIdToInitialValue = new();
@@ -340,6 +341,8 @@ namespace Vampire.Graphify.EditorOnly
             if (!(model.AssetModel is GraphifyAssetModel assetModel))
                 return;
 
+            SerializedObject so = new SerializedObject(assetModel);
+
             var blueprint = assetModel.runtimeBlueprint;
             List<RuntimeNode> runtimeNodes = new();
             portModelToValueId.Clear();
@@ -429,14 +432,22 @@ namespace Vampire.Graphify.EditorOnly
             SetupSpecializedData(blueprint);
 
             blueprint.localProperties = new PropertyDictionary();
+            var typeNameHelper = new Dictionary<string, string>();
             foreach (var decl in model.VariableDeclarations)
             {
                 blueprint.localProperties.Add(
-                    decl.DisplayTitle, decl.InitializationModel.ObjectValue, 
+                    decl.DisplayTitle, 
+                    decl.InitializationModel.ObjectValue,
                     blackboardBuilder);
+                typeNameHelper.Add(decl.DisplayTitle, decl.DataType.Resolve().FullName);
             }
-            
+
+            PropertyCodeGenerator.Generate(blueprint, typeNameHelper);
+            EditorUtility.SetDirty(assetModel);
             EditorUtility.SetDirty(blueprint);
+
+            BlueprintBuiltSignal builtSig = new BlueprintBuiltSignal(blueprint.GetType());
+            builtSig.Send();
         }
     }
 }

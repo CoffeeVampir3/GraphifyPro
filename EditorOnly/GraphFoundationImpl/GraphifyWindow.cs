@@ -73,7 +73,6 @@ namespace Vampire.Graphify.EditorOnly
                     continue;
                 if (rtNode.NodeModel is not IHasRuntimeNode rtNodeModel)
                     continue;
-
                 if (rtNodeModel.RuntimeNodeId == sig.nodeId)
                 {
                     node.AddToClassList(sig.addedCssUponVisit);

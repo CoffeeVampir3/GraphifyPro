@@ -15,8 +15,8 @@ namespace Vampire.Graphify.EditorOnly.Search
         const string k_Sticky = "Sticky Note";
         private readonly List<SearcherItem> items;
         private readonly Stencil stencil;
-        private GraphifyAssetModel assetModel;
-        private Type blueprintType;
+        private readonly GraphifyAssetModel assetModel;
+        private readonly Type blueprintType;
         
         public GraphifyElementDatabase(Stencil stencil, IGraphModel graphModel)
         {

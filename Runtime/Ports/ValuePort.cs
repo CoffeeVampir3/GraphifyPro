@@ -18,7 +18,10 @@ namespace Vampire.Runtime
         [SerializeField] 
         protected T portValue;
         object IPortWithValue.GetInitValue() => portValue;
-        
+
+        public bool TryGetFirstValue(out T val) => TryGetValue(FirstLink(), out val);
+        public bool TryGetFirstValueAs<SomeType>(out SomeType val) => TryGetValueAs(FirstLink(), out val);
+
         public T LocalValue
         {
             get
