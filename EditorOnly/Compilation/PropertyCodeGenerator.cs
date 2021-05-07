@@ -56,8 +56,8 @@ namespace Vampire.Graphify.EditorOnly
             => "set => ((" + fullName + ")" + "currentGraph.values[" + valueKey + "])" + ".item = value;";
         private static string CreateDeclaration(ref string typeName, ref string getLambda, 
             ref string setLambda, ref string key)
-            => "\t\t" + PCGConstants.publicStaticPrefix + typeName + PCGConstants.singleSpace + SafeName(key) + 
-               " {\n\t\t\t" + getLambda + "\n\t\t\t" + setLambda + "\n\t\t}";
+            => "\t\t\t" + PCGConstants.publicStaticPrefix + typeName + PCGConstants.singleSpace + SafeName(key) + 
+               " {\n\t\t\t\t" + getLambda + "\n\t\t\t\t" + setLambda + "\n\t\t\t}";
         private static string KeyedWrappedEntryToCode(int valKey, string key, object obj)
         {
             var args = obj.GetType().GetGenericArguments();
@@ -104,15 +104,8 @@ namespace Vampire.Graphify.EditorOnly
         private static readonly int upperBoundsSizeGuess = BuildWrappedUnsafeSetLambda("some_long_lookup_key", "some_long_lookup_key").Length / 2;
         public static void Generate(RuntimeGraphBlueprint blueprint, Dictionary<string, string> typeNameHelper)
         {
-            if (string.IsNullOrWhiteSpace(blueprint.generatedPropertyClassName))
-            {
-                Debug.LogError("Generating blueprint blackboard failed for: " + blueprint.name +
-                               " because the blackboard does not have a valid name.");
-                return;
-            }
-
             var initialSizeGuess = (blueprint.localProperties.Properties.Count * upperBoundsSizeGuess) + 420;
-            var safeGeneratedName = SafeName(blueprint.generatedPropertyClassName);
+            var safeGeneratedName = SafeName(blueprint.GetType().Name);
             string filePath = Application.dataPath + "/" + safeGeneratedName + ".cs";
             var propertyBuilder = new StringBuilder(PCGConstants.disclaimerAndCodeStart, initialSizeGuess);
             propertyBuilder.Append(safeGeneratedName);
@@ -138,9 +131,10 @@ namespace Vampire.Graphify.EditorOnly
                         break;
                 }
             }
-
-            propertyBuilder.Append("\t}\n}");
+            
+            propertyBuilder.Append("\t\t}\n\t}\n}");
             File.WriteAllText(filePath, propertyBuilder.ToString());
+            //CompilationPipeline.RequestScriptCompilation(RequestScriptCompilationOptions.None);
         }
     }
 }

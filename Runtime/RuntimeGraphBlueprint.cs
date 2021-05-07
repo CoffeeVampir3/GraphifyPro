@@ -13,8 +13,6 @@ namespace Vampire.Runtime
         public object[] initializationValues;
         [NonSerialized, OdinSerialize] 
         public PropertyDictionary localProperties;
-        [SerializeField] 
-        public string generatedPropertyClassName = "";
         //
         public RuntimeGraph CreateRuntimeGraph()
         {

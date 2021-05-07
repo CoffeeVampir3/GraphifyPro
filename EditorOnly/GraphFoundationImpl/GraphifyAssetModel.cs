@@ -42,7 +42,6 @@ namespace Vampire.Graphify.EditorOnly
 
             var window = GraphViewEditorWindow.FindOrCreateGraphWindow<GraphifyWindow>();
             return window != null;
-
         }
     }
 }

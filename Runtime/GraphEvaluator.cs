@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 using Vampire.Runtime.SignalLinker;
 
 namespace Vampire.Runtime
@@ -14,6 +13,11 @@ namespace Vampire.Runtime
         private RuntimeNode currentNode;
         private RuntimeNode nextNode = null;
         private Context rootContext;
+
+        public void Testing_SetCurrentGraphContext()
+        {
+            RuntimeGraph.current = rtGraph;
+        }
 
         public void Initialize()
         {

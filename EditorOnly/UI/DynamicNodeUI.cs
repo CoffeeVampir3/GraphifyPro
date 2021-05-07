@@ -1,4 +1,5 @@
 ﻿using UnityEditor.GraphToolsFoundation.Overdrive;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Vampire.Graphify.EditorOnly
@@ -9,6 +10,15 @@ namespace Vampire.Graphify.EditorOnly
         public DynamicNodeUI(GraphifyNodeModel nodeModel)
         {
             this.nodeModel = nodeModel;
+        }
+
+        public override void EditTitle()
+        {
+            Debug.Log("???");
+            if (!((PartList.GetPart(titleIconContainerPartName) as EditableTitlePart)?.TitleLabel is EditableLabel label))
+                return;
+
+            label.BeginEditing();
         }
 
         protected override void BuildContextualMenu(ContextualMenuPopulateEvent evt)

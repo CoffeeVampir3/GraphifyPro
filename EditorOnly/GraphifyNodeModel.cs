@@ -14,7 +14,7 @@ namespace Vampire.Graphify.EditorOnly
     [Serializable]
     public class GraphifyNodeModel : NodeModel, IRenamable, IHasRuntimeNode
     {
-        [SerializeField]
+        [SerializeField, HideInInspector]
         protected string nodeName;
         [SerializeReference]
         public RuntimeNode runtimeNode;
@@ -24,19 +24,8 @@ namespace Vampire.Graphify.EditorOnly
         protected InfoCollection<DynamicPortInfo, DynamicRange> dynamicPorts = new();
         
         public RuntimeNode RuntimeNode => runtimeNode;
-        public short RuntimeNodeId
-        {
-            get
-            {
-                if (runtimeNode == null)
-                {
-                    Debug.LogError("Runtime node is null!");
-                    return -1;
-                }
-                return runtimeNode?.nodeId ?? -1;
-            }
-        }
-
+        public short RuntimeNodeId => runtimeNode?.nodeId ?? -1;
+        
         public IReadOnlyList<DynamicPortInfo> DynamicPortList => dynamicPorts.InfoList;
         public override string Title => nodeName;
         public void ResizeDynamicPort(DynamicPortInfo targetPortInfo, int by)
@@ -76,6 +65,8 @@ namespace Vampire.Graphify.EditorOnly
         {
             definedFieldNames.Clear();
             definedDynamicNames.Clear();
+
+            m_Capabilities.Add(UnityEditor.GraphToolsFoundation.Overdrive.Capabilities.Renamable);
             if (string.IsNullOrWhiteSpace(nodeName))
             {
                 nodeName = ObjectNames.NicifyVariableName(runtimeNode.GetType().Name);

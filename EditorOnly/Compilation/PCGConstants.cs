@@ -7,7 +7,9 @@
         public const string blackboardStart =
             @"namespace Vampire.Runtime {"
             + "\n\t" +
-            @"public class ";
+            @"public static partial class Properties {"
+            + "\n\t\t" +
+            @"public sealed class ";
 
         public const string generatedDisclaimer =
 @"/* ~~~~~~~~~~~~~~~~~~Graphify automatically generated file.~~~~~~~~~~~~~~~~~~
