@@ -6,12 +6,14 @@ namespace Vampire.Runtime
     {
         public PortCapacity capacity;
         public Orientation orientation;
+        public bool showBackingValue;
 
         protected void Construct(PortCapacity capacity, 
-            Orientation orientation)
+            Orientation orientation, bool showBackingValue)
         {
             this.capacity = capacity;
             this.orientation = orientation;
+            this.showBackingValue = showBackingValue;
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿using Debug = UnityEngine.Debug;
 
 namespace Vampire.Runtime.SignalLinker
 {
@@ -14,15 +14,15 @@ namespace Vampire.Runtime.SignalLinker
                 Debug.Log(sig.GetType() + " listened to by " + listener.Method.Name);
             }
         }
-        
+
         public static void RegisterListener(EventListener listener) {
             listeners += listener;
         }
-
+        
         public static void UnregisterListener(EventListener listener) {
             listeners -= listener;
         }
-
+        
         public void Send()
         {
             listeners?.Invoke(this as T);

@@ -16,7 +16,7 @@ namespace Vampire.Graphify.EditorOnly
     {
         [SerializeField, HideInInspector]
         protected string nodeName;
-        [SerializeReference]
+        [SerializeReference, ShowInNodeInspector]
         public RuntimeNode runtimeNode;
         [SerializeField, HideInInspector]
         protected InfoCollection<PortInfo, PortDefinition> portInfo = new();

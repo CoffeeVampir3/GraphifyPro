@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Sirenix.Serialization;
 using UnityEditor;
 using UnityEditor.GraphToolsFoundation.Overdrive;
 using Vampire.Runtime;
@@ -13,6 +14,7 @@ namespace Vampire.Graphify.EditorOnly
     {
         private static readonly Dictionary<IPortModel, short> portModelToValueId = new();
         private static readonly Dictionary<short, object> portIdToInitialValue = new();
+        private static readonly Dictionary<short, string> valueIdToName = new();
         private static readonly Dictionary<short, DynamicPortInfo> idToDynamicGroup = new();
         private static readonly Dictionary<IPortModel, short> portToDynamicGroupId = new();
         private static readonly Dictionary<DynamicPortInfo, short> dynamicGroupToValueId = new();
@@ -147,6 +149,7 @@ namespace Vampire.Graphify.EditorOnly
                 //Assign dynamic id if dynamic
                 portId = ResolveDynamicPortId(dynamicGroupId, valuePort);
                 portModelToValueId.Add(portModel, portId);
+                valueIdToName.Add(portId, portModel.UniqueName + portModel.NodeModel.Guid);
                 bp.PortId = portId;
                 return;
             }
@@ -157,6 +160,7 @@ namespace Vampire.Graphify.EditorOnly
             
             portId = ++currentPortValueId;
             portModelToValueId.Add(portModel, portId);
+            valueIdToName.Add(portId, portModel.UniqueName + portModel.NodeModel.Guid);
             portIdToInitialValue.Add(portId, valuePort.GetInitValue());
             bp.PortId = portId;
         }
@@ -193,12 +197,13 @@ namespace Vampire.Graphify.EditorOnly
         /// <param name="variableNode"></param>
         private static void IdentifyVariableNodeModel(IVariableNodeModel variableNode)
         {
+            var port = variableNode.Ports.FirstOrDefault();
             if (!declModelToValId.TryGetValue(variableNode.VariableDeclarationModel, out var portId))
             {
                 portId = ++currentPortValueId;
                 declModelToValId.Add(variableNode.VariableDeclarationModel, portId);
+                valueIdToName.Add(portId, variableNode.VariableDeclarationModel.GetVariableName());
             }
-            var port = variableNode.Ports.FirstOrDefault();
             portModelToValueId.Add(port!, portId);
         }
         
@@ -318,7 +323,7 @@ namespace Vampire.Graphify.EditorOnly
             for (short i = 0; i < blueprint.initializationValues.Length; i++)
             {
                 if (!portIdToInitialValue.TryGetValue(i, out var initialValue)) continue;
-                
+                blueprint.initializationNames[i] = valueIdToName[i];
                 if (initialValue != null && initialValue.GetType().IsValueType)
                 {
                     blueprint.initializationValues[i] = AntiAllocationWrapper.CreateValueTypeWrapper(initialValue);
@@ -341,8 +346,6 @@ namespace Vampire.Graphify.EditorOnly
             if (!(model.AssetModel is GraphifyAssetModel assetModel))
                 return;
 
-            SerializedObject so = new SerializedObject(assetModel);
-
             var blueprint = assetModel.runtimeBlueprint;
             List<RuntimeNode> runtimeNodes = new();
             portModelToValueId.Clear();
@@ -353,9 +356,12 @@ namespace Vampire.Graphify.EditorOnly
             dynamicGroupToValueId.Clear();
             blackboardBuilder.Clear();
             declModelToValId.Clear();
+            valueIdToName.Clear();
             currentPortValueId = -1;
             currentDynamicIdentifier = -1;
             stencil = model.Stencil;
+
+            var oldInitializationNames = blueprint.initializationNames;
 
             //First loop over node models, assign each one a unique id so we
             //can flat map them to an array. We also flatten the dynamic port hierarchy
@@ -429,6 +435,7 @@ namespace Vampire.Graphify.EditorOnly
 
             blueprint.nodes = runtimeNodes.ToArray();
             blueprint.initializationValues = new object[currentPortValueId+1];
+            blueprint.initializationNames = new string[currentPortValueId+1];
             SetupSpecializedData(blueprint);
 
             blueprint.localProperties = new PropertyDictionary();
@@ -443,10 +450,13 @@ namespace Vampire.Graphify.EditorOnly
             }
 
             PropertyCodeGenerator.Generate(blueprint, typeNameHelper);
+            AssetDatabase.Refresh();
             EditorUtility.SetDirty(assetModel);
             EditorUtility.SetDirty(blueprint);
+            AssetDatabase.WriteImportSettingsIfDirty(AssetDatabase.GetAssetPath(blueprint));
+            AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(blueprint));
 
-            BlueprintBuiltSignal builtSig = new BlueprintBuiltSignal(blueprint.GetType());
+            BlueprintBuiltSignal builtSig = new BlueprintBuiltSignal(blueprint.GetType(), oldInitializationNames);
             builtSig.Send();
         }
     }

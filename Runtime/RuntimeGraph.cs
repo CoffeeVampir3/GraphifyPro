@@ -1,10 +1,13 @@
-﻿namespace Vampire.Runtime
+﻿using System.Collections.Generic;
+using UnityEngine;
+
+namespace Vampire.Runtime
 {
     public class RuntimeGraph
     {
         public readonly RuntimeNode[] nodes;
         public readonly object[] values;
-        public readonly PropertyDictionary properties;
+        public PropertyDictionary properties;
         internal static RuntimeGraph current;
 
         //Copies our value array in a way that preserves the allocation wrappers.
@@ -27,9 +30,9 @@
             blueprint.initializationValues.CopyTo(values, 0);
             //Deep copy wrapper pointers
             DeepCopyValueWrappers(ref blueprint.initializationValues);
-            //No need to copy since these values are immutable.
-            properties = blueprint.localProperties;
-
+            //Copies the local properties using the same shallow/deep wrapper as the values.
+            properties = blueprint.localProperties.Copy();
+            
             nodes = blueprint.nodes;
         }
     }

@@ -1,3 +1,23 @@
 .activeNode > #title-icon-container {
     background-color: rgba(0, 116, 0, 1);
 }
+
+#sidePanel {
+    width: 300;
+}
+
+#runtimeNode > .unity-base-field > .unity-base-field__input > #unity-checkmark {
+    display: none;
+}
+
+#runtimeNode > .unity-base-field > .unity-base-field__input {
+
+}
+
+#runtimeNode > .unity-base-field > .unity-base-field__input > .unity-text-element {
+    display: none;
+}
+
+#runtimeNode > .unity-base-field {
+    
+}

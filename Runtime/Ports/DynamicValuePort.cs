@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Vampire.Runtime
 {
-    [Serializable]
+    [Serializable, ShowInNodeInspector]
     public abstract class DynamicValuePort : RuntimeDynamicBasePort
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -12,12 +12,12 @@ namespace Vampire.Runtime
             => graph.values[link.fromPortIndex];
     }
 
-    [Serializable]
+    [Serializable, ShowInNodeInspector]
     public class DynamicValuePort<T> : DynamicValuePort, IPortWithValue<T>
     {
-        [SerializeField] 
-        protected T portValue;
-        object IPortWithValue.GetInitValue() => portValue;
+        [SerializeField, ShowInNodeInspector] 
+        protected T initialValue;
+        object IPortWithValue.GetInitValue() => initialValue;
 
         public T LocalValue
         {

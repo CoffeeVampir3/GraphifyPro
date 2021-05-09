@@ -12,6 +12,8 @@ namespace Vampire.Runtime
         [NonSerialized, OdinSerialize] 
         public object[] initializationValues;
         [NonSerialized, OdinSerialize] 
+        public string[] initializationNames;
+        [NonSerialized, OdinSerialize] 
         public PropertyDictionary localProperties;
         //
         public RuntimeGraph CreateRuntimeGraph()

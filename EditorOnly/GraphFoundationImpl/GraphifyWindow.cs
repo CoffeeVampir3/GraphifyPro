@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.GraphToolsFoundation.Overdrive;
 using UnityEditor.GraphToolsFoundation.Overdrive.BasicModel;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Vampire.Runtime;
 using Vampire.Runtime.SignalLinker;
+using PropertyElement = Unity.Properties.UI.PropertyElement;
 
 namespace Vampire.Graphify.EditorOnly
 {
@@ -24,7 +27,23 @@ namespace Vampire.Graphify.EditorOnly
         {
             FindOrCreateGraphWindow<GraphifyWindow>();
         }
+
+        private static bool SidePanelAttribFilter(IEnumerable<Attribute> attribs)
+        {
+            bool isShown = false;
+            foreach (var item in attribs)
+            {
+                if (item is IShowInNodeInspector)
+                    isShown = true;
+                if (item is not PortDefinition pd) continue;
+                if (!pd.showBackingValue)
+                    return false;
+            }
+            
+            return isShown;
+        }
         
+
         //TODO::(Z) Matching variables used for the hack as described in update.
         private Unity.Properties.UI.PropertyElement sidePanelTarget;
         private INodeModel prevTarget = null;
@@ -36,6 +55,11 @@ namespace Vampire.Graphify.EditorOnly
             
             sidePanelTarget = 
                 m_SidePanel.Q("sidePanelInspector") as Unity.Properties.UI.PropertyElement;
+            
+            Debug.Assert(sidePanelTarget != null, nameof(sidePanelTarget) + " -- side panel was null?");
+            var handler = new PropertyElement.AttributeFilterHandler(SidePanelAttribFilter);
+            sidePanelTarget.SetAttributeFilter(handler);
+            sidePanelTarget.AddToClassList("sidePanelStyler");
             
             VisitNodeIdSignal.RegisterListener(ListenForNodeVisitedSignal);
             EditorApplication.playModeStateChanged += OnPlaymodeChanged;
@@ -91,12 +115,32 @@ namespace Vampire.Graphify.EditorOnly
             //We're comparing the current property panel target to the previous one
             //If they're different we clear and reset the target which seems to solve
             //the issue of the side panel not correctly updating.
-            if (!sidePanelTarget.TryGetTarget<INodeModel>(out var currentTarget) 
-                || currentTarget == prevTarget) return;
+            if (!sidePanelTarget.TryGetTarget<INodeModel>(out var currentTarget)
+                || currentTarget == prevTarget)
+            {
+                prevTarget = currentTarget;
+                return;
+            }
             
             prevTarget = currentTarget;
             sidePanelTarget.ClearTarget();
             sidePanelTarget.SetTarget(currentTarget);
+
+            //Combined with the styles set in GraphStyles.css we're able to hide
+            //noisy garbage created by the side panel inspector.
+            var rtNodeItem = m_SidePanel.Q("runtimeNode");
+            if (rtNodeItem == null)
+                return;
+            
+            var toggle = rtNodeItem.Q<Toggle>();
+            toggle?.SetValueWithoutNotify(true);
+            
+            //Hides foldouts with no items.
+            foreach(var item in rtNodeItem.Query<Foldout>().ToList())
+            {
+                if (item.contentContainer.childCount == 0)
+                    item.style.display = new StyleEnum<DisplayStyle>(DisplayStyle.None);
+            }
         }
 
         protected override GraphView CreateGraphView()

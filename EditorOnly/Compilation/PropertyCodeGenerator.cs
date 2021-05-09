@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using Vampire.Graphify.EditorOnly.AssetManagement;
 using Vampire.Runtime;
 
 namespace Vampire.Graphify.EditorOnly
@@ -106,7 +107,6 @@ namespace Vampire.Graphify.EditorOnly
         {
             var initialSizeGuess = (blueprint.localProperties.Properties.Count * upperBoundsSizeGuess) + 420;
             var safeGeneratedName = SafeName(blueprint.GetType().Name);
-            string filePath = Application.dataPath + "/" + safeGeneratedName + ".cs";
             var propertyBuilder = new StringBuilder(PCGConstants.disclaimerAndCodeStart, initialSizeGuess);
             propertyBuilder.Append(safeGeneratedName);
             propertyBuilder.Append(" : " + nameof(RuntimeProperties) + " {\n");
@@ -133,7 +133,7 @@ namespace Vampire.Graphify.EditorOnly
             }
             
             propertyBuilder.Append("\t\t}\n\t}\n}");
-            File.WriteAllText(filePath, propertyBuilder.ToString());
+            AssetManager.CreateThingy(safeGeneratedName, ref propertyBuilder);
             //CompilationPipeline.RequestScriptCompilation(RequestScriptCompilationOptions.None);
         }
     }

@@ -1,5 +1,4 @@
 ﻿using System;
-using Vampire.Runtime.SignalLinker;
 
 namespace Vampire.Runtime
 {
@@ -8,45 +7,23 @@ namespace Vampire.Runtime
     {
         public RuntimeGraphBlueprint blueprint;
         
-        private int rootNodeIndex = 0;
-        private RuntimeGraph rtGraph;
-        private RuntimeNode currentNode;
-        private RuntimeNode nextNode = null;
-        private Context rootContext;
+        internal int rootNodeIndex = 0;
+        internal RuntimeGraph rtGraph;
+        internal RuntimeNode currentNode;
+        internal RuntimeNode nextNode = null;
+        internal Context rootContext;
 
-        public void Testing_SetCurrentGraphContext()
-        {
-            RuntimeGraph.current = rtGraph;
-        }
-
+        internal void SetGraphContext()
+            => RuntimeGraph.current = rtGraph;
+        
         public void Initialize()
         {
             rtGraph = blueprint.CreateRuntimeGraph();
             currentNode = rtGraph.nodes[rootNodeIndex];
             rootContext = new Context(rtGraph);
 
-            //TODO:: Temp
-            #if UNITY_EDITOR
-            BlueprintBuiltSignal.RegisterListener(Editor_ObserveBuildChanges);
-            VisitNodeIdSignal visitNodeSig = new VisitNodeIdSignal(currentNode.nodeId, VisitNodeIdSignal.activeNodeCssClass);
-            visitNodeSig.Send();
-            #endif
-        }
-        
-        private RuntimeNode Editor_ReplaceRebuiltNode(RuntimeNode existing)
-        {
-            return currentNode.nodeId > rtGraph.nodes.Length ? 
-                rtGraph.nodes[rootNodeIndex] : rtGraph.nodes[existing.nodeId];
-        }
-
-        public void Editor_ObserveBuildChanges(BlueprintBuiltSignal sig)
-        {
-            if (blueprint.GetType() != sig.graphBlueprintType) return;
-            //Rebuilds the runtime graph from all new data.
-            rtGraph = blueprint.CreateRuntimeGraph();
-            currentNode = Editor_ReplaceRebuiltNode(currentNode);
-            nextNode = Editor_ReplaceRebuiltNode(nextNode);
-            rootContext.currentGraph = rtGraph;
+            this.Editor_RegisterBuildWatcher();
+            this.Editor_SendNodeVisitedSignal(currentNode.nodeId);
         }
 
         public bool Step()
@@ -60,16 +37,10 @@ namespace Vampire.Runtime
             {
                 nextNode = rootContext.Pop();
             }
-            
-            #if UNITY_EDITOR
-            //TODO:: Temporary code.
-            if (nextNode != null)
-            {
-                VisitNodeIdSignal visitNodeSig = new VisitNodeIdSignal(nextNode.nodeId, VisitNodeIdSignal.activeNodeCssClass);
-                visitNodeSig.Send();
-            }
-            #endif
 
+            if (nextNode != null)
+                this.Editor_SendNodeVisitedSignal(currentNode.nodeId);
+            
             currentNode = nextNode;
             return true;
         }

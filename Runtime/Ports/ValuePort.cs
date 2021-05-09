@@ -15,9 +15,9 @@ namespace Vampire.Runtime
     [Serializable]
     public class ValuePort<T> : ValuePort, IPortWithValue<T>
     {
-        [SerializeField] 
-        protected T portValue;
-        object IPortWithValue.GetInitValue() => portValue;
+        [SerializeField, ShowInNodeInspector] 
+        protected T initialValue;
+        object IPortWithValue.GetInitValue() => initialValue;
 
         public bool TryGetFirstValue(out T val) => TryGetValue(FirstLink(), out val);
         public bool TryGetFirstValueAs<SomeType>(out SomeType val) => TryGetValueAs(FirstLink(), out val);

@@ -3,8 +3,6 @@ using System.Collections;
 using System.Linq;
 using System.Reflection;
 using Sirenix.OdinInspector;
-using Sirenix.Serialization;
-using UnityEditor;
 using UnityEngine;
 
 namespace Vampire.Runtime
@@ -12,61 +10,35 @@ namespace Vampire.Runtime
     [Serializable]
     public abstract class ExposedProperty
     {
-        [OdinSerialize, ValueDropdown("GetGeneratedPropertyTypes")]
-        protected Type propertyClass;
-
-        private IEnumerable GetGeneratedPropertyTypes() {
-            var types = TypeCache.GetTypesDerivedFrom<RuntimeProperties>();
-            ValueDropdownList<Type> typeList = new();
-            foreach (var item in types)
-            {
-                typeList.Add(item.Name, item);
-            }
-            
-            return typeList;
-        }
-
-        public abstract void Validate();
     }
-    
+
     [Serializable]
-    public class ExposedProperty<T> : ExposedProperty
+    public class ExposedProperty<PropertyClassType, T> : ExposedProperty
+        where PropertyClassType : RuntimeProperties
     {
-        //TODO:: Avoid runtime reflection by caching getter/setter names instead.
-        //TODO:: Odin Dependency
         [SerializeField, ValueDropdown("GetPropertiesFromGeneratedType")]
         private string propertyName;
+        
+        protected bool cached = false;
+        protected Func<T> cachedGetter;
+        protected Action<T> cachedSetter;
+        protected static readonly Type getFuncPattern = typeof(Func<T>);
+        protected static readonly Type setFuncPattern = typeof(Action<T>);
 
         private IEnumerable GetPropertiesFromGeneratedType()
         {
-            if (propertyClass == null)
-                return null;
+            var propertyClass = typeof(PropertyClassType);
+
             var gets = propertyClass.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
             return (from m in gets where m.PropertyType == typeof(T) select m.Name).ToList();
         }
 
-        public override void Validate()
-        {
-            var prop = propertyClass.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
-            if (prop != null) return;
-            Debug.LogError("Couldn't find property which had been named " + propertyName + " was it deleted?");
-        }
-
-        private Type FindGeneratedClassTypeIfExists(string generatedClassName) {
-            var types = TypeCache.GetTypesDerivedFrom<RuntimeProperties>();
-            return types.FirstOrDefault(item => item.Name == generatedClassName);
-        }
-
-        private bool cached = false;
-        private Func<T> cachedGetter;
-        private Action<T> cachedSetter;
-        private static readonly Type getFuncPattern = typeof(Func<T>);
-        private static readonly Type setFuncPattern = typeof(Action<T>);
-        public void Cache()
+        protected void Cache()
         {
             if (cached)
                 return;
             cached = true;
+            var propertyClass = typeof(PropertyClassType);
             var prop = propertyClass.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
             if (prop == null)
             {
@@ -86,17 +58,17 @@ namespace Vampire.Runtime
                 Debug.LogError("Failed to build setter for graphify property " + prop.Name);
             }
         }
-        
+
         public T Get(GraphEvaluator targetEvaluator)
         {
-            targetEvaluator.Testing_SetCurrentGraphContext();
+            targetEvaluator.SetGraphContext();
             Cache();
             return cachedGetter.Invoke();
         }
 
         public void Set(GraphEvaluator targetEvaluator, T newValue)
         {
-            targetEvaluator.Testing_SetCurrentGraphContext();
+            targetEvaluator.SetGraphContext();
             Cache();
             cachedSetter.Invoke(newValue);
         }
