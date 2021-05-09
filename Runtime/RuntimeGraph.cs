@@ -1,4 +1,6 @@
-﻿namespace Vampire.Runtime
+﻿using Unity.VisualScripting;
+
+namespace Vampire.Runtime
 {
     public class RuntimeGraph
     {
@@ -30,7 +32,12 @@
             //Copies the local properties using the same shallow/deep wrapper as the values.
             properties = blueprint.localProperties.Copy();
             
-            nodes = blueprint.nodes;
+            nodes = new RuntimeNode[blueprint.nodes.Length];
+            for (int i = 0; i < nodes.Length; i++)
+            {
+                var oldNode = blueprint.nodes[i];
+                nodes[i] = oldNode.CloneViaFakeSerialization();
+            }
         }
     }
 }

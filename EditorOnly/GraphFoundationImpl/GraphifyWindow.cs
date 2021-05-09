@@ -134,7 +134,7 @@ namespace Vampire.Graphify.EditorOnly
             
             var toggle = rtNodeItem.Q<Toggle>();
             toggle?.SetValueWithoutNotify(true);
-            
+
             //Hides foldouts with no items.
             foreach(var item in rtNodeItem.Query<Foldout>().ToList())
             {

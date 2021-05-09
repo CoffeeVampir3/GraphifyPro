@@ -2,7 +2,6 @@
 using UnityEditor.GraphToolsFoundation.Overdrive;
 using UnityEditor.GraphToolsFoundation.Overdrive.BasicModel;
 using Vampire.Graphify.EditorOnly.Search;
-using PortCapacity = UnityEditor.GraphToolsFoundation.Overdrive.PortCapacity;
 
 namespace Vampire.Graphify.EditorOnly
 {
@@ -44,6 +43,7 @@ namespace Vampire.Graphify.EditorOnly
             return instance;
         }
 
+        /*
         /// <summary>
         /// All ports have a default capacity of single unless they explicitly declare a capacity.
         /// </summary>
@@ -52,6 +52,7 @@ namespace Vampire.Graphify.EditorOnly
             capacity = PortCapacity.Single;
             return true;
         }
+        */
 
         public override IToolbarProvider GetToolbarProvider()
         {

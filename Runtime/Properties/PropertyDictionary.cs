@@ -99,12 +99,22 @@ namespace Vampire.Runtime
         
         private static void DeepCopyValueWrappers(ref PropertyDictionary targetDict)
         {
+            List<string> changedKeys = new();
+            List<AntiAllocationWrapper> newValues = new();
+
             foreach (var item in targetDict.properties)
             {
                 if (item.Value is AntiAllocationWrapper wrapper)
                 {
-                    targetDict.properties[item.Key] = wrapper.CloneWrapper();
+                    changedKeys.Add(item.Key);
+                    newValues.Add(wrapper.CloneWrapper());
                 }
+            }
+
+            for (var i = 0; i < changedKeys.Count; i++)
+            {
+                var item = changedKeys[i];
+                targetDict.properties[item] = newValues[i];
             }
         }
         

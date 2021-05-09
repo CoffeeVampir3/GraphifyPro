@@ -1,5 +1,4 @@
 ﻿using UnityEditor.GraphToolsFoundation.Overdrive;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Vampire.Graphify.EditorOnly
@@ -14,7 +13,6 @@ namespace Vampire.Graphify.EditorOnly
 
         public override void EditTitle()
         {
-            Debug.Log("???");
             if (!((PartList.GetPart(titleIconContainerPartName) as EditableTitlePart)?.TitleLabel is EditableLabel label))
                 return;
 
