@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-
-namespace Vampire.Runtime
+﻿namespace Vampire.Runtime
 {
     public class RuntimeGraph
     {

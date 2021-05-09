@@ -7,9 +7,8 @@ namespace Vampire.Runtime
     {
         [Conditional("UNITY_EDITOR")]
         public static void Editor_RegisterBuildWatcher(this GraphEvaluator evaluator)
-        {
-            BlueprintBuiltSignal.RegisterListener(evaluator.Editor_ObserveBuildChanges);
-        }
+            => BlueprintBuiltSignal.RegisterListener(evaluator.Editor_ObserveBuildChanges);
+        
         
         [Conditional("UNITY_EDITOR")]
         public static void Editor_SendNodeVisitedSignal(this GraphEvaluator evaluator, short visitedNodeId)

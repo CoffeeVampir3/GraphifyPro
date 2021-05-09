@@ -8,10 +8,14 @@ namespace Vampire.Runtime
     {
         private Dictionary<int, List<Link>> cachedIndexedLinks = new();
         private static List<Link> emptyLinkList = new(0);
+        /// <summary>
+        /// Gets all links attached to the given port index.
+        /// </summary>
+        /// <param name="index"></param>
         public List<Link> this[int index]  {
             get
             {
-                if (index > links.Count)
+                if (index >= links.Count)
                     return emptyLinkList;
                 if (cachedIndexedLinks.TryGetValue(index, out var cachedLinks))
                 {

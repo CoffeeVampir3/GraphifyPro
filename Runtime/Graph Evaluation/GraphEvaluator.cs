@@ -6,7 +6,6 @@ namespace Vampire.Runtime
     public class GraphEvaluator
     {
         public RuntimeGraphBlueprint blueprint;
-        
         internal int rootNodeIndex = 0;
         internal RuntimeGraph rtGraph;
         internal RuntimeNode currentNode;

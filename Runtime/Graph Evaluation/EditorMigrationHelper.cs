@@ -1,10 +1,13 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 using Vampire.Runtime.SignalLinker;
 using Debug = UnityEngine.Debug;
 
 namespace Vampire.Runtime
 {
+    /// <summary>
+    /// Helper class that gets compiled out in builds, supports the EditorSignalingHelper allowing
+    /// the editor change watcher to receive updates in editor but get compiled out in build.
+    /// </summary>
     internal static class EditorMigrationHelper
     {
         internal static void Editor_ObserveBuildChanges(this GraphEvaluator evaluator, BlueprintBuiltSignal sig)
