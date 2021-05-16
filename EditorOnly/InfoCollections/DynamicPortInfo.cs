@@ -22,6 +22,10 @@ namespace Vampire.Graphify.EditorOnly
             this.fieldName = fieldName;
             if (dynDef != null)
             {
+                if (currentSize == 0)
+                {
+                    currentSize = dynDef.initialSize;
+                }
                 minSize = dynDef.min;
                 maxSize = dynDef.max;
             }
