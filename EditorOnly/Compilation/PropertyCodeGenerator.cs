@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Text;
-using UnityEngine;
 using Vampire.Graphify.EditorOnly.AssetManagement;
 using Vampire.Runtime;
 

@@ -46,6 +46,7 @@ namespace Vampire.Graphify.EditorOnly
                 typeof(Color).GenerateTypeHandle(),
                 typeof(AnimationClip).GenerateTypeHandle(),
                 typeof(Mesh).GenerateTypeHandle(),
+                typeof(ScriptableObject).GenerateTypeHandle(),
                 typeof(Texture2D).GenerateTypeHandle(),
                 typeof(Texture3D).GenerateTypeHandle()
             };

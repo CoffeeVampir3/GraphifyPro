@@ -159,7 +159,6 @@ namespace Vampire.Graphify.EditorOnly
                     type, null, portDef.orientation.ToUnity(), PortModelOptions.NoEmbeddedConstant),
                 _ => throw new ArgumentOutOfRangeException()
             };
-            
             definedFieldNames.Add(portName);
             portInfo.AddOrUpdateInfo(
                 portModel.UniqueName, portDef, 

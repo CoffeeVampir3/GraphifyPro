@@ -134,12 +134,15 @@ namespace Vampire.Graphify.EditorOnly
             
             var toggle = rtNodeItem.Q<Toggle>();
             toggle?.SetValueWithoutNotify(true);
+            var contentContainer = rtNodeItem.Q("unity-content");
+            contentContainer.style.display = new StyleEnum<DisplayStyle>(DisplayStyle.Flex);
 
             //Hides foldouts with no items.
             foreach(var item in rtNodeItem.Query<Foldout>().ToList())
             {
-                if (item.contentContainer.childCount == 0)
-                    item.style.display = new StyleEnum<DisplayStyle>(DisplayStyle.None);
+                item.style.display = item.contentContainer.childCount == 0 
+                    ? new StyleEnum<DisplayStyle>(DisplayStyle.None) : 
+                    new StyleEnum<DisplayStyle>(DisplayStyle.Flex);
             }
         }
 
