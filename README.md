@@ -1,3 +1,3 @@
 # GraphifyPro
 
-This code is provided for instructional purposes only.
+This code is incomplete, use for instructional purposes only.
